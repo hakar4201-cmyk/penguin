@@ -174,7 +174,7 @@ body:has(#home:not([style*="none"])) #sres.on{display:block;position:fixed;top:c
 <section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 نرخی گەیاندن و WhatsApp</span></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
 <div id="admOrders" style="display:none"><div class="section-head"><h2>📦 داواکارییەکان</h2><button class="back" onclick="closeOrders()">← گەڕانەوە</button></div><div id="ordList"></div></div>
 <div id="admShip" style="display:none"><div class="section-head"><h2>🚚 نرخی گەیاندن</h2><button class="back" onclick="closeShip()">← گەڕانەوە</button></div>
-<div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا نرخی گەیاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، نرخی گەیاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><p id="shMsg" class="order-msg"></p></div></div>
+<div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا نرخی گەیاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، نرخی گەیاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><button class="order-btn" id="tgBtn" style="background:#2a2433;display:none" onclick="testTg()">📨 تاقیکردنەوەی Telegram</button><p id="shMsg" class="order-msg"></p></div></div>
 <div id="admStats" style="display:none"><div class="section-head"><h2>📊 داتای گشتی</h2><button class="back" onclick="closeStats()">← گەڕانەوە</button></div><div id="statBox"></div></div>
 <div id="admSecView" style="display:none"><div class="section-head"><h2 id="admSecTitle"></h2><button class="back" onclick="closeAdmSec()">← گەڕانەوە</button></div><div id="admTable" class="adm-wrap"></div><button class="fab" onclick="openForm()">+</button></div></section>
 <footer>Penguin · Demo v3</footer>
@@ -211,7 +211,7 @@ const rooms=[
 ];
 let lang="ck",cart=[];
 let customProducts=JSON.parse(localStorage.getItem("ph_products")||"[]");if(!localStorage.getItem("ph_v3")){customProducts.forEach(p=>{if(p.room>=3)p.room-=1});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v3","1")}if(!localStorage.getItem("ph_v4")){customProducts=customProducts.filter(p=>p.room!==6);customProducts.forEach(p=>{if(p.room>6)p.room-=1});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v4","1")}if(!localStorage.getItem("ph_v5")){const mp={"8": 0, "9": 1, "12": 2, "1": 3, "2": 4, "3": 5, "6": 6, "7": 7, "0": 8, "5": 9, "10": 10, "11": 11, "4": 4};customProducts.forEach(p=>{if(mp[p.room]!==undefined)p.room=mp[p.room]});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v5","1")}
-const adminPass="Penguin2026Hakar";
+const adminPass=null;
 const pPrice=p=>p.sale&&p.sale<p.price?p.sale:p.price;const money=n=>n.toLocaleString("en-US")+" د.ع";
 function openRoom(i){document.getElementById("home").style.display="none";document.getElementById("catalog").style.display="block";const r=rooms[i];document.getElementById("roomTitle").textContent=r[lang];let extra=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.room===i);const n=extra.length;document.getElementById("roomDesc").textContent=lang==="ar"?n+" منتج":lang==="en"?n+" products":n.toLocaleString("ar-EG")+" کاڵا";
 document.getElementById("products").innerHTML=extra.map(({p},j)=>{const nm=p.names?(p.names[lang]||p.names.ku):p.name,off=p.sale&&p.sale<p.price,eff=pPrice(p);return `<article class="product">${off?`<span class="badge">-${Math.round((p.price-p.sale)/p.price*100)}%</span>`:""}<div class="pic">${p.photo?`<img src="${p.photo}" style="height:100%;max-width:100%;border-radius:10px;object-fit:cover">`:(p.icon||"📦")}</div><b>${esc(nm)}</b><small>${esc(p.barcode||"")}</small><div class="price-row"><span class="price">${off?`<s>${money(p.price)}</s> `:""}${money(eff)}</span><button class="add" onclick="addCart(${i},${j},${eff},'')">+ ${lang==="en"?"Add":lang==="ar"?"أضف":"زیادکردن"}</button></div></article>`}).join("");window.scrollTo(0,0)}
@@ -397,5 +397,48 @@ renderAdmTable=function(){$("admSecTitle").textContent=rooms[curRoom].ck;const L
 $("admTable").innerHTML=L.length?"<table><tr><th>#</th><th>وێنە</th><th>بارکۆد</th><th>کوردی</th><th>عربي</th><th>English</th><th>نرخ</th><th>داشکاندن</th><th></th></tr>"+L.map((x,n)=>{const p=x.p,t=p.names||{ku:p.name,ar:"",en:""};return `<tr><td>${n+1}</td><td>${p.photo?`<img src="${p.photo}">`:(p.icon||"—")}</td><td>${esc(p.barcode||"—")}</td><td>${esc(t.ku)}</td><td>${esc(t.ar||"—")}</td><td>${esc(t.en||"—")}</td><td>${p.price||0}</td><td>${p.sale||"—"}</td><td><button class="action" onclick="editProd(${x.k})">✏️</button> <button class="action danger" onclick="delAsk(this,${x.k})">🗑️</button></td></tr>`}).join("")+"</table>":'<p class="order-msg" style="color:#7b7384">هێشتا هیچ کاڵایەک نییە. دەست بدە لە +</p>'};
 delAsk=function(b,k){if(b.dataset.a){customProducts.splice(k,1);savePs();renderAdmTable()}else{b.dataset.a=1;b.textContent="دڵنیام؟";setTimeout(()=>{b.dataset.a="";b.textContent="🗑️"},3000)}};
 applyUI();
+
+/* ===== Server mode (Cloudflare Pages Functions + D1) ===== */
+const BASE_N=12;let API_ON=false,tok=sessionStorage.getItem("ph_tok")||"";
+Object.assign(UI.ck,{busy:"⚠️ زۆر داواکاریت ناردووە، دواتر تاقی بکەرەوە",err:"⚠️ هەڵەیەک ڕوویدا، دووبارە هەوڵ بدەرەوە"});
+Object.assign(UI.ar,{busy:"⚠️ طلبات كثيرة، حاول لاحقاً",err:"⚠️ حدث خطأ، حاول مرة أخرى"});
+Object.assign(UI.en,{busy:"⚠️ Too many orders, try again later",err:"⚠️ Something went wrong, try again"});
+async function api(path,opt={}){const h={"Content-Type":"application/json"};if(tok)h.Authorization="Bearer "+tok;const r=await fetch("/api"+path,{...opt,headers:h});
+if(!r.ok){if(r.status===401&&tok&&path.startsWith("/admin")){tok="";sessionStorage.removeItem("ph_tok");show("adminLogin")}const e=new Error("http "+r.status);e.status=r.status;throw e}return r.json()}
+function toast(t){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";e.style.cssText="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2a2433;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;font-size:13px";document.body.appendChild(e)}e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)}
+const push=(key,value)=>api("/admin/kv",{method:"POST",body:JSON.stringify({key,value})}).catch(()=>toast("⚠️ پاشەکەوت نەکرا"));
+async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];secs=Object.assign({ovr:{},custom:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});
+rooms.length=BASE_N;rooms.forEach(r=>{if(secs.ovr[r.id])Object.assign(r,secs.ovr[r.id])});secs.custom.forEach(c=>rooms.push({...c,items:[],icons:[]}));buildCards();applyUI();
+$("shWa").style.display="none";if($("shWa").previousElementSibling)$("shWa").previousElementSibling.style.display="none";$("tgBtn").style.display="block";
+if(!sessionStorage.getItem("ph_vs")){sessionStorage.setItem("ph_vs","1");api("/visit",{method:"POST",body:"{}"}).catch(()=>{})}}catch(e){}}
+const _savePs=savePs;savePs=function(){return API_ON?true:_savePs()};
+const _ts=togSec;togSec=function(i,on){_ts(i,on);if(API_ON)push("hidden",[...hid])};
+const _sv=saveSecs;saveSecs=function(){if(API_ON){push("secs",secs);return true}return _sv()};
+const _ss=saveShip;saveShip=async function(){if(!API_ON)return _ss();ship={t:Number($("shT").value)||0,a:Number($("shA").value)||0,b:Number($("shB").value)||0};
+try{await api("/admin/kv",{method:"POST",body:JSON.stringify({key:"ship",value:ship})});$("shMsg").style.color="#2e7d32";$("shMsg").textContent="✅ پاشەکەوت کرا"}catch(e){$("shMsg").style.color="#c62828";$("shMsg").textContent="⚠️ هەڵە ڕوویدا"}};
+async function testTg(){const m=$("shMsg");m.style.color="#2a2433";m.textContent="...";try{const r=await api("/admin/test-telegram",{method:"POST",body:"{}"});m.style.color=r.ok?"#2e7d32":"#c62828";m.textContent=r.ok?"✅ نامە نێردرا بۆ Telegram":"⚠️ "+(r.description||"نەنێردرا")}catch(e){m.textContent="⚠️ هەڵە"}}
+addCart=function(i,j,price,name){const p=customProducts.filter(q=>q.room===i)[j];if(!p)return;cart.push({pid:p.id,name:p.names?p.names.ku:p.name,nm:p.names?{ck:p.names.ku,ar:p.names.ar,en:p.names.en}:{ck:p.name},price:pPrice(p)});updateCart()};
+const _po=placeOrder;placeOrder=async function(){if(!API_ON)return _po();const n=$("cName").value.trim(),p=$("cPhone").value.trim(),a=$("cAddr").value.trim(),m=$("orderMsg");
+if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=tr("need");return}
+const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
+try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
+cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no}
+catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):tr("err")}btn.disabled=false};
+async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
+const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
+try{const r=await api("/login",{method:"POST",body:JSON.stringify({password:$("adminPassInput").value})});tok=r.token;sessionStorage.setItem("ph_tok",tok)}catch(e){$("loginErr").textContent=e.status===429?"⚠️ زۆر هەوڵت دا، دواتر تاقی بکەرەوە":"وشەی نهێنی هەڵەیە";return}
+try{await loadOrders()}catch(e){}renderAdmin();show("admin");["admSecView","admOrders","admStats","admShip"].forEach(x=>$(x).style.display="none");$("admMain").style.display="block"};
+const _oo=openOrders;openOrders=async function(){if(API_ON)try{await loadOrders()}catch(e){}_oo()};
+setSt=function(k,s){const o=orders[k];o.st=s;renderOrders();if(API_ON)api("/admin/order-status",{method:"POST",body:JSON.stringify({id:o.id,status:s})}).catch(()=>toast("⚠️ دۆخەکە پاشەکەوت نەکرا"))};
+const _os=openStats;openStats=async function(){if(!API_ON)return _os();let d;try{d=await api("/admin/stats")}catch(e){return}
+const c=k=>(d.by[k]||{n:0}).n,row=(a,b)=>`<div class="stat"><span>${a}</span><b>${b}</b></div>`,tot=Object.values(d.by).reduce((t,x)=>t+x.n,0);
+$("admMain").style.display="none";$("admStats").style.display="block";
+$("statBox").innerHTML=row("📦 هەموو داواکارییەکان",tot)+row("🆕 نوێ",c("new"))+row("✅ وەرگیرا / ئامادەکرا",c("got")+c("ready"))+row("🚚 گەیەندرا",c("sent"))+row("❌ هەڵوەشێنراوە / بەردەست نییە",c("cancel")+c("na"))+row("💰 کۆی داواکارییەکان",money(d.revenue))+row("🛍️ ژمارەی کاڵاکان",d.products)+row("👁️ بەشە پیشاندراوەکان",(rooms.length-hid.size)+" / "+rooms.length)+row("👥 سەردانی ئەمڕۆ",d.visits.today)+row("👥 سەردانی ٧ ڕۆژی ڕابردوو",d.visits.week)+row("👥 هەموو سەردانەکان",d.visits.total)+'<div class="stat-note">سەردان = ژمارەی جارانێک کە کەسێک بەرنامەکەی کردەوە (هەر کەسێک لە یەک دانیشتندا یەکجار دەژمێردرێت).</div>';window.scrollTo(0,0)};
+const _sn=saveNew;saveNew=async function(){if(!API_ON)return _sn();const old=eIdx>=0?customProducts[eIdx]:null,snap=old?JSON.stringify(old):null,before=customProducts.length;_sn();
+const p=old||(customProducts.length>before?customProducts[customProducts.length-1]:null);if(!p||(old&&JSON.stringify(p)===snap))return;
+try{const r=await api("/admin/product",{method:"POST",body:JSON.stringify({id:p.id,data:{room:p.room,barcode:p.barcode,names:p.names,name:p.name,price:p.price,sale:p.sale||0,photo:p.photo||"",icon:p.icon||""}})});p.id=r.id}
+catch(e){if(old)Object.assign(p,JSON.parse(snap));else customProducts.pop();toast("⚠️ کاڵاکە پاشەکەوت نەکرا");renderAdmTable()}};
+const _da=delAsk;delAsk=function(b,k){if(API_ON&&b.dataset.a&&customProducts[k]){api("/admin/product?id="+customProducts[k].id,{method:"DELETE"}).catch(()=>toast("⚠️ نەسڕایەوە لەسەر سێرڤەر"))}_da(b,k)};
+loadCatalog();
 </script>
 </body></html>
