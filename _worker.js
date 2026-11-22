@@ -103,7 +103,7 @@ export async function onRequest({ request, env }) {
         products: rows.map((r) => ({ id: r.id, ...JSON.parse(r.data) })),
         secs: (await kvGet(db, "secs")) || { ovr: {}, custom: [] },
         hidden: (await kvGet(db, "hidden")) || [],
-        ship: { t: num(ship.t), a: num(ship.a), b: num(ship.b) },
+        ship: { t: num(ship.t), a: num(ship.a), b: num(ship.b), phone: str(ship.phone, 20).replace(/\D/g, "") },
       });
     }
 

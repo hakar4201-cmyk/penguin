@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f0e8">
+<meta name="theme-color" content="#f6a6c9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <title>Penguin</title>
 <style>
@@ -144,6 +147,12 @@ body:has(#home:not([style*="none"])) #srch{display:block;position:fixed;top:calc
 body:has(#home:not([style*="none"])) #sres.on{display:block;position:fixed;top:calc(36vh - 2px);left:14px;right:14px;max-height:48vh;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 8px 24px #0004;z-index:7}
 .sr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0ebe5}.sr>span{font-size:24px;width:38px;text-align:center}.sr img{width:38px;height:38px;object-fit:cover;border-radius:8px}.sr div{flex:1}.sr small{display:block;color:#9a92a3;font-weight:500}.sr em{font-style:normal;font-weight:800;font-size:13px}
 .product{position:relative}.badge{position:absolute;top:8px;inset-inline-start:8px;background:#e53935;color:#fff;font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;z-index:2}.price s{color:#9a92a3;font-size:12px;font-weight:600}
+
+#contactBtn{position:fixed;right:14px;bottom:18px;width:48px;height:48px;border-radius:50%;border:0;background:#ffffffd9;box-shadow:0 4px 14px #0003;font-size:22px;z-index:8;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body:has(#admin[style*="block"]) #contactBtn,body:has(#adminLogin[style*="block"]) #contactBtn{display:none}
+#contactSheet{display:none;position:fixed;inset:0;background:#0006;z-index:70;align-items:flex-end;justify-content:center}
+.cs-box{position:relative;background:#fff;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:24px 20px 30px;text-align:center;display:grid;gap:12px;font-size:16px}
+#csNum{font-size:22px;font-weight:800;letter-spacing:.5px}.cs-btn{display:block;padding:14px;border-radius:14px;background:#b5175f;color:#fff;font-weight:800;text-decoration:none}.cs-btn.wa{background:#25a244}.cs-x{position:absolute;top:10px;inset-inline-end:14px;background:none;border:0;font-size:20px;color:#2a2433}
 </style>
 </head>
 <body>
@@ -179,6 +188,8 @@ body:has(#home:not([style*="none"])) #sres.on{display:block;position:fixed;top:c
 <div id="admSecView" style="display:none"><div class="section-head"><h2 id="admSecTitle"></h2><button class="back" onclick="closeAdmSec()">← گەڕانەوە</button></div><div id="admTable" class="adm-wrap"></div><button class="fab" onclick="openForm()">+</button></div></section>
 <footer>Penguin · Demo v3</footer>
 </main>
+<button id="contactBtn" onclick="openContact()" aria-label="Contact">📞</button>
+<div id="contactSheet" onclick="if(event.target===this)closeContact()"><div class="cs-box"><button class="cs-x" onclick="closeContact()">✕</button><b id="csTitle"></b><div id="csNum" dir="ltr"></div><a id="csCall" class="cs-btn"></a><a id="csWa" class="cs-btn wa" target="_blank" rel="noopener">WhatsApp</a></div></div>
 <div id="srch"><input id="sq" oninput="doSearch()" autocomplete="off"></div><div id="sres"></div>
 <div id="prodForm"><div class="pf-top"><button onclick="closeForm()">←</button></div>
 <div class="pf-body"><label>بارکۆد <i>*</i></label><div class="pf-row"><input id="pBc" inputmode="numeric" placeholder="بارکۆد بنووسە یان سکان بکە"><button class="pf-ico" onclick="openScan()">▦</button></div>
@@ -409,12 +420,12 @@ function toast(t){let e=$("toast");if(!e){e=document.createElement("div");e.id="
 const push=(key,value)=>api("/admin/kv",{method:"POST",body:JSON.stringify({key,value})}).catch(()=>toast("⚠️ پاشەکەوت نەکرا"));
 async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];secs=Object.assign({ovr:{},custom:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});
 rooms.length=BASE_N;rooms.forEach(r=>{if(secs.ovr[r.id])Object.assign(r,secs.ovr[r.id])});secs.custom.forEach(c=>rooms.push({...c,items:[],icons:[]}));buildCards();applyUI();
-$("shWa").style.display="none";if($("shWa").previousElementSibling)$("shWa").previousElementSibling.style.display="none";$("tgBtn").style.display="block";
+const lb=$("shWa").previousElementSibling;if(lb)lb.textContent="ژمارەی پەیوەندی بۆ کڕیار (بە کۆدی وڵات، نموونە 9647501234567):";$("tgBtn").style.display="block";
 if(!sessionStorage.getItem("ph_vs")){sessionStorage.setItem("ph_vs","1");api("/visit",{method:"POST",body:"{}"}).catch(()=>{})}}catch(e){}}
 const _savePs=savePs;savePs=function(){return API_ON?true:_savePs()};
 const _ts=togSec;togSec=function(i,on){_ts(i,on);if(API_ON)push("hidden",[...hid])};
 const _sv=saveSecs;saveSecs=function(){if(API_ON){push("secs",secs);return true}return _sv()};
-const _ss=saveShip;saveShip=async function(){if(!API_ON)return _ss();ship={t:Number($("shT").value)||0,a:Number($("shA").value)||0,b:Number($("shB").value)||0};
+const _ss=saveShip;saveShip=async function(){if(!API_ON)return _ss();ship={t:Number($("shT").value)||0,a:Number($("shA").value)||0,b:Number($("shB").value)||0,phone:$("shWa").value.replace(/\D/g,"").replace(/^0+/,"")};
 try{await api("/admin/kv",{method:"POST",body:JSON.stringify({key:"ship",value:ship})});$("shMsg").style.color="#2e7d32";$("shMsg").textContent="✅ پاشەکەوت کرا"}catch(e){$("shMsg").style.color="#c62828";$("shMsg").textContent="⚠️ هەڵە ڕوویدا"}};
 async function testTg(){const m=$("shMsg");m.style.color="#2a2433";m.textContent="...";try{const r=await api("/admin/test-telegram",{method:"POST",body:"{}"});m.style.color=r.ok?"#2e7d32":"#c62828";m.textContent=r.ok?"✅ نامە نێردرا بۆ Telegram":"⚠️ "+(r.description||"نەنێردرا")}catch(e){m.textContent="⚠️ هەڵە"}}
 addCart=function(i,j,price,name){const p=customProducts.filter(q=>q.room===i)[j];if(!p)return;cart.push({pid:p.id,name:p.names?p.names.ku:p.name,nm:p.names?{ck:p.names.ku,ar:p.names.ar,en:p.names.en}:{ck:p.name},price:pPrice(p)});updateCart()};
@@ -439,6 +450,12 @@ const p=old||(customProducts.length>before?customProducts[customProducts.length-
 try{const r=await api("/admin/product",{method:"POST",body:JSON.stringify({id:p.id,data:{room:p.room,barcode:p.barcode,names:p.names,name:p.name,price:p.price,sale:p.sale||0,photo:p.photo||"",icon:p.icon||""}})});p.id=r.id}
 catch(e){if(old)Object.assign(p,JSON.parse(snap));else customProducts.pop();toast("⚠️ کاڵاکە پاشەکەوت نەکرا");renderAdmTable()}};
 const _da=delAsk;delAsk=function(b,k){if(API_ON&&b.dataset.a&&customProducts[k]){api("/admin/product?id="+customProducts[k].id,{method:"DELETE"}).catch(()=>toast("⚠️ نەسڕایەوە لەسەر سێرڤەر"))}_da(b,k)};
+
+Object.assign(UI.ck,{contact:"پەیوەندی",call:"پەیوەندی بکە"});Object.assign(UI.ar,{contact:"اتصل بنا",call:"اتصال"});Object.assign(UI.en,{contact:"Contact us",call:"Call"});
+const DEF_PHONE="9647504736935";const phoneNum=()=>String((ship&&(ship.phone||ship.wa))||DEF_PHONE).replace(/\D/g,"");
+function openContact(){const n=phoneNum();$("csTitle").textContent=tr("contact");$("csNum").textContent="+"+n.replace(/^(\d{3})(\d{3})(\d{3})(\d+)$/,"$1 $2 $3 $4");$("csCall").href="tel:+"+n;$("csCall").textContent="📞 "+tr("call");$("csWa").href="https://wa.me/"+n;$("contactSheet").style.display="flex"}
+function closeContact(){$("contactSheet").style.display="none"}
+const _osh=openShip;openShip=function(){_osh();$("shWa").value=(ship.phone||ship.wa||DEF_PHONE)};
 loadCatalog();
 </script>
 </body></html>
