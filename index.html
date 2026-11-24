@@ -175,11 +175,34 @@ header{direction:rtl}
 body.closed #closedBox{display:block}
 body.closed :is(.house,#srch,#sres,.cartbar,#catalog,#cartView){display:none!important}
 .tm{width:100%;padding:12px;border:1px solid #e3dcd4;border-radius:12px;font-size:18px;text-align:center;background:#fff;direction:ltr}
+
+/* header buttons same height */
+.hbtns{gap:8px;align-items:center}
+#menuBtn{width:38px;height:38px;box-sizing:border-box;border-radius:19px;display:flex;align-items:center;justify-content:center;padding:0;font-size:22px;line-height:1;border:1px solid #e3dcd4;background:#fff;color:#2a2433}
+.hbtns .lang{height:38px;box-sizing:border-box;border-radius:19px;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;line-height:1;border:1px solid #e3dcd4;background:#fff;color:#2a2433}
+.hbtns .lang::before{content:"\1F310";font-size:16px}
+/* services */
+#services{display:none}
+.svc-date{display:flex;align-items:center;gap:14px;background:#2a2433;color:#fff;border-radius:18px;padding:14px 16px;margin:6px 0 12px}
+.svc-date .dn{min-width:62px;height:62px;border-radius:16px;background:#f28c28;color:#fff;font-size:30px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.svc-date .dw{font-size:18px;font-weight:800}.svc-date .dm{font-size:14px;opacity:.85;margin-top:3px}
+.svc-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 0}
+.svc-card h3{margin:0 0 10px;font-size:15px}
+.dl-row{display:flex;justify-content:space-between;align-items:center;border-radius:14px;padding:12px 14px;margin-top:8px}
+.dl-row b{font-size:15px}.dl-row span{font-size:19px;font-weight:800;direction:ltr}
+.dl-buy{background:#e6f4ea;color:#1e7a3c}.dl-sell{background:#fdeaea;color:#c62828}
+.dl-upd{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+.pr-row{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px}
+.pr{flex:0 0 calc(33.333% - 6px);scroll-snap-align:center;box-sizing:border-box;text-align:center;border:1px solid var(--line);border-radius:14px;padding:12px 4px;background:#faf8f5}
+.pr small{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.pr b{font-size:18px;direction:ltr;display:block}
+.pr.nx{background:#f28c28;border-color:#f28c28;color:#fff}.pr.nx small{color:#fff}
+.svc-msg{font-size:13px;color:var(--muted);text-align:center;padding:8px}
+body.closed #services{display:none!important}
 </style>
 </head>
 <body>
 <header><div><div class="brand">Penguin</div><div class="sub" id="tagline">هەموو پێداویستییەکانت لە یەک شوێن</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
-<div id="menu"><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button><button onclick="closeMenu();openShare()">📤 Share</button></div>
+<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button><button onclick="closeMenu();openShare()">📤 Share</button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
 <section id="home">
@@ -198,6 +221,12 @@ body.closed :is(.house,#srch,#sres,.cartbar,#catalog,#cartView){display:none!imp
 <div id="custForm" class="login-box" style="margin:10px 0"><input id="cName" autocomplete="name"><input id="cPhone" type="tel" autocomplete="tel"><textarea id="cAddr" rows="2" autocomplete="street-address"></textarea></div>
 <button class="order-btn" id="orderBtn" onclick="placeOrder()">داخوازکرن</button>
 <p id="orderMsg" class="order-msg"></p>
+</section>
+<section id="services" style="display:none">
+<div class="section-head"><h2 id="svcTitle">🧰 خزمەتگوزاری</h2><button class="back" id="svcBack" onclick="show('home')">← ڤەگەڕیان</button></div>
+<div class="svc-date" id="svcDate"></div>
+<div class="svc-card"><h3 id="svcDollarT"></h3><div id="svcDollar"></div></div>
+<div class="svc-card"><h3 id="svcPrayT"></h3><div class="pr-row" id="svcPray"></div></div>
 </section>
 <section id="adminLogin" style="display:none">
 <div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="goHome()">← ڤەگەڕیان</button></div>
@@ -507,7 +536,7 @@ function isOpenNow(){if(!sched.show)return false;if(!sched.auto)return true;cons
 Object.assign(UI.ck,{closed:"ئێستا بەرنامە گرتییە",opens:"کاتێ ڤەکرنێ: "});Object.assign(UI.ar,{closed:"التطبيق مغلق حالياً",opens:"وقت الفتح: "});Object.assign(UI.en,{closed:"We are closed now",opens:"Opens at: "});
 function applySched(){const op=isOpenNow();document.body.classList.toggle("closed",!op);
  if(!op){$("closedTxt").textContent=tr("closed");$("closedSub").textContent=(sched.show&&sched.auto)?tr("opens")+sched.open:"";
-  if($("catalog").style.display==="block"||$("cartView").style.display==="block")goHome()}
+  if($("catalog").style.display==="block"||$("cartView").style.display==="block")goHome();if($("services").style.display==="block")show("home")}
  const st=$("schedSt");if(st){st.textContent=op?"کراوە":"گیراو";st.className=op?"on2":"off"}}
 const _apS=applyUI;applyUI=function(){_apS();applySched()};
 function openSched(){$("admMain").style.display="none";$("admSched").style.display="block";$("scShow").checked=!!sched.show;$("scAuto").checked=!!sched.auto;$("scOpen").value=sched.open;$("scClose").value=sched.close;$("scMsg").textContent="";schedNow();window.scrollTo(0,0)}
@@ -522,6 +551,35 @@ function saveSched(){const o=$("scOpen").value,c=$("scClose").value,au=$("scAuto
 const _ra2=renderAdmin;renderAdmin=function(){_ra2();applySched()};
 const _sa5=submitAdmin;submitAdmin=async function(){await _sa5();$("admSched").style.display="none"};
 applySched();setInterval(applySched,30000);
+
+/* ===== services ===== */
+VIEWS.push("services");
+Object.assign(UI.ck,{svc:"خزمەتگوزاری",dT:"نرخێ دۆلارێ",pT:"کاتێن نڤێژێ",dBuy:"کڕین",dSell:"فرۆتن",iqd:"د.ع",upd:"نوێکرنەوە: ",na:"ئێستا بەردەست نینە",p:["سپێدە","ڕۆژهەڵات","نیڤڕۆ","ئێڤار","مەغریب","عیشاء"]});
+Object.assign(UI.ar,{svc:"الخدمات",dT:"سعر الدولار",pT:"أوقات الصلاة",dBuy:"شراء",dSell:"بيع",iqd:"د.ع",upd:"آخر تحديث: ",na:"غير متوفر حالياً",p:["الفجر","الشروق","الظهر","العصر","المغرب","العشاء"]});
+Object.assign(UI.en,{svc:"Services",dT:"Dollar rate",pT:"Prayer times",dBuy:"Buy",dSell:"Sell",iqd:"IQD",upd:"Updated: ",na:"Not available right now",p:["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"]});
+const KM=["کانوونا دووێ","شوبات","ئادار","نیسان","ئایار","حوزەیران","تەموز","ئاب","ئەیلوول","تشرینا ئێکێ","تشرینا دووێ","کانوونا ئێکێ"],KD=["یەکشەمب","دووشەمب","سێشەمب","چوارشەمب","پێنجشەمب","هەینی","شەمبی"];
+let svcData=null,svcAt=0;
+const PK=["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"];
+function dg(n){return lang==="en"?String(n):Number(n).toLocaleString("ar-EG",{useGrouping:false})}
+function renderDate(){const d=bgdNow(),dt=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));let wd,mo;
+ if(lang==="ck"){wd=KD[dt.getUTCDay()];mo=KM[dt.getUTCMonth()]}
+ else{const loc=lang==="ar"?"ar-IQ":"en-GB";wd=dt.toLocaleDateString(loc,{weekday:"long",timeZone:"UTC"});mo=dt.toLocaleDateString(loc,{month:"long",timeZone:"UTC"})}
+ $("svcDate").innerHTML='<div class="dn">'+dg(dt.getUTCDate())+'</div><div><div class="dw">'+wd+'</div><div class="dm">'+mo+' '+dg(dt.getUTCFullYear())+'</div></div>'}
+function f12(t){const m=/^(\d{1,2}):(\d{2})/.exec(t||"");if(!m)return"--:--";const h=(+m[1])%12||12;return String(h).padStart(2,"0")+":"+m[2]}
+function renderSvc(){if($("services").style.display!=="block")return;renderDate();
+ $("svcTitle").textContent="🧰 "+tr("svc");$("svcBack").textContent=tr("back");$("svcDollarT").textContent="💵 "+tr("dT");$("svcPrayT").textContent="🕌 "+tr("pT");
+ const dl=svcData&&svcData.dollar;
+ $("svcDollar").innerHTML=dl?'<div class="dl-row dl-buy"><b>'+tr("dBuy")+'</b><span>100$ = '+dl.buy.toLocaleString("en-US")+' '+tr("iqd")+'</span></div><div class="dl-row dl-sell"><b>'+tr("dSell")+'</b><span>100$ = '+dl.sell.toLocaleString("en-US")+' '+tr("iqd")+'</span></div>'+(dl.upd?'<div class="dl-upd">'+tr("upd")+dl.upd+'</div>':''):'<div class="svc-msg">'+tr("na")+'</div>';
+ const pr=svcData&&svcData.prayer,box=$("svcPray");
+ if(!pr){box.innerHTML='<div class="svc-msg">'+tr("na")+'</div>';return}
+ const d=bgdNow(),n=d.getUTCHours()*60+d.getUTCMinutes(),mins=PK.map(k=>minsOf(pr[k]));let nx=mins.findIndex(m=>m!=null&&m>n);if(nx<0)nx=0;
+ box.innerHTML=PK.map((k,i)=>'<div class="pr'+(i===nx?' nx':'')+'"><small>'+tr("p")[i]+'</small><b>'+f12(pr[k])+'</b></div>').join("");
+ const el=box.children[nx];if(el&&!box._done){box._done=1;setTimeout(()=>{try{el.scrollIntoView({inline:"center",block:"nearest"})}catch(e){}},50)}}
+async function svcLoad(){if(svcData&&Date.now()-svcAt<120000)return;try{svcData=await api("/services");svcAt=Date.now()}catch(e){}renderSvc()}
+function openServices(){show("services");$("svcPray")._done=0;renderSvc();svcLoad()}
+const _apV=applyUI;applyUI=function(){_apV();$("mSvcT").textContent=tr("svc");renderSvc()};
+applyUI();
+setInterval(()=>{if($("services").style.display==="block")renderSvc()},60000);
 
 loadCatalog();
 </script>

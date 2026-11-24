@@ -86,6 +86,50 @@ async function telegram(env, text) {
 
 const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
 
+
+const PRAY_TUNE = { Fajr: 0, Sunrise: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
+const addMin = (hhmm, d) => { const [h, m] = hhmm.split(":").map(Number); const t = (((h * 60 + m + d) % 1440) + 1440) % 1440; return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0"); };
+async function getDollar(db) {
+  const now = Date.now();
+  let c = (await kvGet(db, "svc:dollar")) || {};
+  if (c.ts && now - c.ts < 5 * 60e3) return c;
+  if (c.tried && now - c.tried < 60e3) return c;
+  try {
+    const r = await fetch("https://pashadollar.com/en/dollar/duhok", { headers: { "User-Agent": "PenguinApp/1.0", "Accept-Language": "en" } });
+    if (!r.ok) throw new Error("http " + r.status);
+    const text = (await r.text()).replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
+    const num = (s) => +s.replace(/,/g, "");
+    let sell, buy;
+    const ms = text.match(/Sell\b[^0-9]{0,80}?(\d{1,3}(?:,\d{3})+)/), mb = text.match(/Buy\b[^0-9]{0,80}?(\d{1,3}(?:,\d{3})+)/);
+    if (ms) sell = num(ms[1]);
+    if (mb) buy = num(mb[1]);
+    if (!sell || !buy) { const n = (text.match(/\d{3},\d{3}/g) || []).map(num); sell = sell || n[0]; buy = buy || n[1]; }
+    const ok = (v) => v >= 100000 && v <= 400000;
+    if (!ok(sell) || !ok(buy)) throw new Error("parse");
+    const mu = text.match(/Last updated\s*(\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2})/);
+    c = { sell, buy, upd: mu ? mu[1] : "", ts: now, tried: now };
+  } catch (e) { c.tried = now; }
+  await kvSet(db, "svc:dollar", c);
+  return c;
+}
+async function getPrayer(db) {
+  const ymd = new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
+  const key = "svc:pray:" + ymd;
+  const c = await kvGet(db, key);
+  if (c && c.t) return c.t;
+  const tried = await kvGet(db, "svc:pray:tried");
+  if (tried && Date.now() - tried < 60e3) return null;
+  try {
+    const dmy = ymd.split("-").reverse().join("-");
+    const r = await fetch("https://api.aladhan.com/v1/timings/" + dmy + "?latitude=36.8669&longitude=42.9503&method=3&school=0&timezonestring=Asia/Baghdad");
+    if (!r.ok) throw new Error("http " + r.status);
+    const t = (await r.json()).data.timings, out = {};
+    for (const k of Object.keys(PRAY_TUNE)) { if (!/^\d{1,2}:\d{2}/.test(t[k])) throw new Error("parse"); out[k] = addMin(String(t[k]).slice(0, 5), PRAY_TUNE[k]); }
+    await kvSet(db, key, { t: out });
+    return out;
+  } catch (e) { await kvSet(db, "svc:pray:tried", Date.now()); return null; }
+}
+
 export async function onRequest({ request, env }) {
   if (!env.DB) return J({ error: "DB binding missing" }, 500);
   const url = new URL(request.url);
@@ -95,6 +139,11 @@ export async function onRequest({ request, env }) {
   const db = env.DB;
   try {
     await init(db);
+
+    if (path === "/services" && m === "GET") {
+      const d = await getDollar(db), p = await getPrayer(db);
+      return J({ dollar: d && d.sell ? { buy: d.buy, sell: d.sell, upd: d.upd || "" } : null, prayer: p, now: Date.now() });
+    }
 
     if (path === "/catalog" && m === "GET") {
       const rows = (await db.prepare("SELECT id, data FROM products ORDER BY id").all()).results || [];
