@@ -103,6 +103,8 @@ export async function onRequest({ request, env }) {
         products: rows.map((r) => ({ id: r.id, ...JSON.parse(r.data) })),
         secs: (await kvGet(db, "secs")) || { ovr: {}, custom: [] },
         hidden: (await kvGet(db, "hidden")) || [],
+        sched: (await kvGet(db, "sched")) || { show: true, auto: false, open: "08:00", close: "23:00" },
+        now: Date.now(),
         ship: { t: num(ship.t), a: num(ship.a), b: num(ship.b), phone: str(ship.phone, 20).replace(/\D/g, "") },
       });
     }
@@ -116,6 +118,13 @@ export async function onRequest({ request, env }) {
     }
 
     if (path === "/order" && m === "POST") {
+      const sc = (await kvGet(db, "sched")) || {};
+      if (sc.show === false) return J({ error: "closed" }, 403);
+      if (sc.auto) {
+        const mo = (t) => { const x = /^(\d{1,2}):(\d{2})$/.exec(t || ""); return x ? +x[1] * 60 + +x[2] : null; };
+        const o = mo(sc.open), c = mo(sc.close), d = new Date(Date.now() + 3 * 3600e3), n = d.getUTCHours() * 60 + d.getUTCMinutes();
+        if (o != null && c != null && o !== c && !(o < c ? n >= o && n < c : n >= o || n < c)) return J({ error: "closed" }, 403);
+      }
       const b = await request.json().catch(() => ({}));
       const name = str(b.name, 80), phone = str(b.phone, 30), addr = str(b.addr, 300);
       const items = Array.isArray(b.items) ? b.items.slice(0, 60) : [];
@@ -189,7 +198,7 @@ export async function onRequest({ request, env }) {
       }
       if (path === "/admin/kv" && m === "POST") {
         const b = await request.json().catch(() => ({}));
-        if (!["secs", "hidden", "ship"].includes(b.key)) return J({ error: "bad key" }, 400);
+        if (!["secs", "hidden", "ship", "sched"].includes(b.key)) return J({ error: "bad key" }, 400);
         const v = JSON.stringify(b.value);
         if (v.length > 600000) return J({ error: "too big" }, 413);
         await kvSet(db, b.key, b.value);
