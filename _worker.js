@@ -200,7 +200,7 @@ export async function onRequest({ request, env }) {
         if (o != null && c != null && o !== c && !(o < c ? n >= o && n < c : n >= o || n < c)) return J({ error: "closed" }, 403);
       }
       const b = await request.json().catch(() => ({}));
-      const name = str(b.name, 80), phone = str(b.phone, 30), addr = str(b.addr, 300);
+      const name = str(b.name, 80), phone = str(b.phone, 30), addr = str(b.addr, 300), note = str(b.note, 300).replace(/[\u0000-\u001f]+/g, " ");
       const items = Array.isArray(b.items) ? b.items.slice(0, 60) : [];
       if (!name || phone.replace(/\D/g, "").length < 7 || !addr || !items.length) return J({ error: "invalid" }, 400);
       const since = new Date(Date.now() - 10 * 60e3).toISOString();
@@ -224,14 +224,15 @@ export async function onRequest({ request, env }) {
       const fee = sub >= num(ship.t) ? num(ship.b) : num(ship.a);
       const total = sub + fee;
       const ck = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => x.toString(16).padStart(2, "0")).join("");
-      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck };
+      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note };
       const res = await db.prepare("INSERT INTO orders (created, status, ip, data) VALUES (?, 'new', ?, ?)").bind(new Date().toISOString(), ip, JSON.stringify(data)).run();
       const id = res.meta.last_row_id;
       const no = "#" + (1000 + id);
       const text =
         "🆕 داواکاری نوێ " + no + "\n\nName: " + name + "\nLocation: " + addr + "\nNumber phone: " + phone + "\nOrder:\n" +
         lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n") +
-        "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total);
+        "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total) +
+        (note ? "\n\n🟨🟨🟨 تێبینی 🟨🟨🟨\n" + note + "\n🟨🟨🟨🟨🟨🟨🟨🟨🟨" : "");
       const tg = await telegram(env, text, tgKb(id, "new"));
       await db.prepare("UPDATE orders SET data = json_set(data, '$.notified', ?) WHERE id = ?").bind(tg.ok ? 1 : 0, id).run();
       return J({ ok: true, no, id, ck, sub, fee, total });

@@ -254,7 +254,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div class="section-head"><h2 id="cartTitle">🛒 سەبەتا من</h2><button class="back" id="cartBack" onclick="goHome()">← ڤەگەڕیان</button></div>
 <div id="cartList"></div>
 <div id="cartTotal" class="cart-total"></div>
-<div id="custForm" class="login-box" style="margin:10px 0"><input id="cName" autocomplete="name"><input id="cPhone" type="tel" autocomplete="tel"><textarea id="cAddr" rows="2" autocomplete="street-address"></textarea></div>
+<div id="custForm" class="login-box" style="margin:10px 0"><input id="cName" autocomplete="name"><input id="cPhone" type="tel" autocomplete="tel"><textarea id="cAddr" rows="2" autocomplete="street-address"></textarea><textarea id="cNote" rows="2" maxlength="300"></textarea></div>
 <button class="order-btn" id="orderBtn" onclick="placeOrder()">داخوازکرن</button>
 <p id="orderMsg" class="order-msg"></p>
 </section>
@@ -283,7 +283,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <button class="order-btn" onclick="saveSched()">پاشەکەوتکردن</button><p id="scMsg" class="order-msg"></p><p id="scNow" class="stat-note"></p></div></div>
 <div id="admStats" style="display:none"><div class="section-head"><h2>📊 داتای گشتی</h2><button class="back" onclick="closeStats()">← ڤەگەڕیان</button></div><div id="statBox"></div></div>
 <div id="admSecView" style="display:none"><div class="section-head"><h2 id="admSecTitle"></h2><button class="back" onclick="closeAdmSec()">← ڤەگەڕیان</button></div><div id="admTable" class="adm-wrap"></div><button class="fab" onclick="openForm()">+</button></div></section>
-<footer>Penguin · Demo v3</footer>
+<footer>Penguin</footer>
 </main>
 <button id="contactBtn" onclick="openContact()" aria-label="Contact">📞</button>
 <div id="contactSheet" onclick="if(event.target===this)closeContact()"><div class="cs-box"><button class="cs-x" onclick="closeContact()">✕</button><b id="csTitle"></b><div id="csNum" dir="ltr"></div><a id="csCall" class="cs-btn"></a><a id="csWa" class="cs-btn wa" target="_blank" rel="noopener">WhatsApp</a></div></div>
@@ -293,7 +293,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div id="notes"></div>
 <div id="srch"><input id="sq" oninput="doSearch()" autocomplete="off"></div><div id="sres"></div>
 <div id="prodForm"><div class="pf-top"><button onclick="closeForm()">←</button></div>
-<div class="pf-body"><label>بارکۆد <i>*</i></label><div class="pf-row"><input id="pBc" inputmode="numeric" placeholder="بارکۆد بنووسە یان سکان بکە"><button class="pf-ico" onclick="openScan()">▦</button></div>
+<div class="pf-body"><label>بارکۆد <small>(ئارەزوومەندانە)</small></label><div class="pf-row"><input id="pBc" inputmode="numeric" placeholder="ئەگەر هەیە: بارکۆد بنووسە یان سکان بکە"><button class="pf-ico" onclick="openScan()">▦</button></div>
 <label>ناڤێ بەرهەمی <i>*</i> <small>(بە هەرسێ زمان)</small></label><div class="pf-row"><input id="pTitle" oninput="titleInput()"><select id="pLang" onchange="switchLang()"><option value="ku">کوردی</option><option value="ar">العربية</option><option value="en">English</option></select></div>
 <label>نرخی ڕاستەقینە</label><input id="pPrice" inputmode="numeric" class="pf-full"><label>نرخی داشکاندن <small>(ئارەزوومەندانە)</small></label><input id="pSale" inputmode="numeric" class="pf-full">
 <label>وێنە</label><div class="pf-photo" id="pPrev">📷</div><div class="pf-row"><label class="pf-btn">📷 کامێرا<input type="file" accept="image/*" capture="environment" hidden onchange="pickPhoto(this)"></label><label class="pf-btn">🖼️ گەلەری<input type="file" accept="image/*" hidden onchange="pickPhoto(this)"></label></div>
@@ -375,8 +375,7 @@ function langOpts(){[...$("pLang").options].forEach(o=>o.textContent=LN[o.value]
 function titleInput(){T[cL]=$("pTitle").value.trim();langOpts()}
 function switchLang(){T[cL]=$("pTitle").value.trim();cL=$("pLang").value;$("pTitle").value=T[cL];$("pTitle").dir=cL==="en"?"ltr":"rtl";langOpts()}
 function saveNew(){T[cL]=$("pTitle").value.trim();const b=$("pBc").value.trim(),m=$("pMsg");
-if(!b){m.textContent="⚠️ بارکۆد پێویستە";return}
-if(customProducts.some(p=>p.barcode===b)){m.textContent="⚠️ ئەم بارکۆدە پێشتر زیاد کراوە";return}
+if(b&&customProducts.some(p=>p.barcode===b)){m.textContent="⚠️ ئەم بارکۆدە پێشتر زیاد کراوە";return}
 const miss=Object.keys(LN).filter(l=>!T[l]);if(miss.length){m.textContent="⚠️ ناڤێ بەرهەمی بە "+miss.map(l=>LN[l]).join(" و ")+" لەبیرکراوە. تکایە بینووسە";return}
 customProducts.push({room:curRoom,barcode:b,names:{...T},name:T.ku,price:Number($("pPrice").value)||0,photo:photoData,stock:0});
 if(!savePs()){customProducts.pop();m.textContent="⚠️ شوێن پڕە، وێنەیەکی بچووکتر هەڵبژێرە";return}
@@ -423,7 +422,7 @@ orders.push({no,date:new Date().toLocaleString("en-GB",{hour12:false}).slice(0,1
 cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+no}
 function openOrders(){$("admMain").style.display="none";$("admSecView").style.display="none";$("admOrders").style.display="block";renderOrders();window.scrollTo(0,0)}
 function closeOrders(){$("admOrders").style.display="none";$("admMain").style.display="block";renderAdmin()}
-function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div><div>📍 ${esc(o.addr)}</div><ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
+function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div><div>📍 ${esc(o.addr)}</div>${o.note?`<div style="background:#fff3bf;border-radius:8px;padding:6px 8px;margin:4px 0">🟨 ${esc(o.note)}</div>`:""}<ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
 function setSt(k,s){orders[k].st=s;saveOrders();renderOrders()}
 const _ra=renderAdmin;renderAdmin=function(){_ra();$("ordBtn").innerHTML="<span>📦 داواکارییەکان</span><small>"+orders.filter(o=>o.st==="new").length+" نوێ</small>"};
 const _sa=submitAdmin;submitAdmin=function(){_sa();$("admOrders").style.display="none"};
@@ -467,7 +466,7 @@ if(!saveSecs()){$("sMsg").textContent="⚠️ شوێن پڕە، وێنەیەکی
 closeSec();buildCards();renderAdmin()}
 buildCards();
 
-Object.assign(UI.ck,{sub:"کۆما بەرهەمان",fee:"بەهای گەهاندن",free:"بەخۆڕایی",total2:"کۆما گشتی",search:"🔎 لێگەڕیان",nores:"هیچ شتێک نەدۆزرایەوە"});
+Object.assign(UI.ck,{sub:"کۆما بەرهەمان",fee:"بەهای گەهاندن",free:"بێ بەرامبەر",total2:"کۆما گشتی",search:"🔎 لێگەڕیان",nores:"هیچ شتێک نەدۆزرایەوە"});
 Object.assign(UI.ar,{sub:"مجموع المنتجات",fee:"رسوم التوصيل",free:"مجاني",total2:"المجموع الكلي",search:"🔎 بحث",nores:"لا توجد نتائج"});
 Object.assign(UI.en,{sub:"Subtotal",fee:"Delivery fee",free:"Free",total2:"Grand total",search:"🔎 Search",nores:"No results"});
 if(!localStorage.getItem("ph_seed")){const seed=[];rooms.forEach((r,i)=>{(r.items||[]).forEach((nm,j)=>seed.push({room:i,name:nm,names:{ku:nm,ar:"",en:""},price:(j+1)*1000+2500,sale:0,photo:"",icon:r.icons[j],barcode:"",stock:0}))});customProducts=seed.concat(customProducts);savePs();try{localStorage.setItem("ph_seed","1")}catch(e){}}
@@ -497,7 +496,6 @@ let eIdx=-1;
 const _of=openForm;openForm=function(){eIdx=-1;_of();$("pSale").value=""};
 function editProd(k){const p=customProducts[k],t=p.names||{ku:p.name,ar:"",en:""};eIdx=k;curRoom=p.room;T={ku:t.ku||"",ar:t.ar||"",en:t.en||""};cL="ku";photoData=p.photo||"";$("pBc").value=p.barcode||"";$("pTitle").value=T.ku;$("pLang").value="ku";$("pTitle").dir="rtl";$("pPrice").value=p.price||"";$("pSale").value=p.sale||"";$("pPrev").innerHTML=photoData?`<img src="${photoData}">`:"📷";$("pMsg").textContent="";langOpts();$("prodForm").style.display="flex"}
 saveNew=function(){T[cL]=$("pTitle").value.trim();const b=$("pBc").value.trim(),m=$("pMsg"),old=eIdx>=0?customProducts[eIdx]:null,pr=Number($("pPrice").value)||0,sl=Number($("pSale").value)||0;
-if(!b&&!(old&&!old.barcode)){m.textContent="⚠️ بارکۆد پێویستە";return}
 if(b&&customProducts.some((p,k)=>p.barcode===b&&k!==eIdx)){m.textContent="⚠️ ئەم بارکۆدە پێشتر زیاد کراوە";return}
 const miss=Object.keys(LN).filter(l=>!T[l]);if(miss.length){m.textContent="⚠️ ناڤێ بەرهەمی بە "+miss.map(l=>LN[l]).join(" و ")+" لەبیرکراوە. تکایە بینووسە";return}
 if(sl&&(!pr||sl>=pr)){m.textContent="⚠️ نرخی داشکاندن دەبێت کەمتر بێت لە نرخی ڕاستەقینە";return}
@@ -533,8 +531,8 @@ addCart=function(i,j,price,name){const p=customProducts.filter(q=>q.room===i)[j]
 const _po=placeOrder;placeOrder=async function(){if(!API_ON)return _po();const n=$("cName").value.trim(),p=$("cPhone").value.trim(),a=$("cAddr").value.trim(),m=$("orderMsg");
 if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=tr("need");return}
 const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
-try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
-cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
+try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,note:$("cNote").value.trim(),items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
+cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value=$("cNote").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
 catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):tr("err")}btn.disabled=false};
 async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
 const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
@@ -691,6 +689,13 @@ function reorder(i){const o=jget("ph_my",[])[i];if(!o)return;if(!isOpenNow()){to
 const _scF=showCart;showCart=function(){_scF();fillInfo()};
 const _tmM=toggleMenu;toggleMenu=function(e){$("mMy").style.display=jget("ph_my",[]).length?"block":"none";_tmM(e)};
 const _apM=applyUI;applyUI=function(){_apM();$("mMyT").textContent=tr("mo");renderMy()};
+
+/* ===== order note ===== */
+Object.assign(UI.ck,{notePh:"تێبینی (ئارەزوومەندانە): ئەگەر تە شتەک زێدە یان کێم دڤێت بنڤێسە"});
+Object.assign(UI.ar,{notePh:"ملاحظة (اختياري): اكتب إن أردت شيئاً زائداً أو أقل"});
+Object.assign(UI.en,{notePh:"Note (optional): add anything extra or less you want"});
+const _apT=applyUI;applyUI=function(){_apT();$("cNote").placeholder=tr("notePh")};
+applyUI();
 
 loadCatalog();
 </script>
