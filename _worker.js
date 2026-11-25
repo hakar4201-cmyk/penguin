@@ -228,11 +228,12 @@ export async function onRequest({ request, env }) {
       const res = await db.prepare("INSERT INTO orders (created, status, ip, data) VALUES (?, 'new', ?, ?)").bind(new Date().toISOString(), ip, JSON.stringify(data)).run();
       const id = res.meta.last_row_id;
       const no = "#" + (1000 + id);
+      const sep = "━━━━━━━━━━━━━━━━━";
       const text =
-        "🆕 داواکاری نوێ " + no + "\n\nName: " + name + "\nLocation: " + addr + "\nNumber phone: " + phone + "\nOrder:\n" +
-        lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n") +
-        "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total) +
-        (note ? "\n\n🟨🟨🟨 تێبینی 🟨🟨🟨\n" + note + "\n🟨🟨🟨🟨🟨🟨🟨🟨🟨" : "");
+        "🆕 داواکاری نوێ " + no + "\n\n▪️ " + name + "\n▪️ " + addr.replace(/\s*\n\s*/g, " ") + "\n▪️ " + phone + "\n" + sep + "\n\n" +
+        lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n\n") +
+        "\n\n" + sep + "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total) +
+        (note ? "\n\n▪️تێبینی\n" + note : "");
       const tg = await telegram(env, text, tgKb(id, "new"));
       await db.prepare("UPDATE orders SET data = json_set(data, '$.notified', ?) WHERE id = ?").bind(tg.ok ? 1 : 0, id).run();
       return J({ ok: true, no, id, ck, sub, fee, total });
