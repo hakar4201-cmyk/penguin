@@ -69,13 +69,24 @@ function cleanProduct(p) {
   };
 }
 
-async function telegram(env, text) {
+async function tgApi(env, method, body) {
+  if (!env.TG_TOKEN) return { ok: false, description: "TG_TOKEN نەدانراوە" };
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + env.TG_TOKEN + "/" + method, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return await r.json();
+  } catch (e) { return { ok: false, description: "network" }; }
+}
+const tgKb = (id, st) => ({ inline_keyboard: [[
+  { text: (st === "got" ? "☑️ " : "") + "✅ هاتە وەرگرتن", callback_data: "o:" + id + ":got" },
+  { text: (st === "cancel" ? "☑️ " : "") + "❌ هاتە هەڵوەشاندن", callback_data: "o:" + id + ":cancel" },
+]] });
+async function telegram(env, text, markup) {
   if (!env.TG_TOKEN || !env.TG_CHAT) return { ok: false, description: "TG_TOKEN / TG_CHAT نەدانراون" };
   try {
     const r = await fetch("https://api.telegram.org/bot" + env.TG_TOKEN + "/sendMessage", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: env.TG_CHAT, text }),
+      body: JSON.stringify(markup ? { chat_id: env.TG_CHAT, text, reply_markup: markup } : { chat_id: env.TG_CHAT, text }),
     });
     const d = await r.json();
     return { ok: !!d.ok, description: d.description || "" };
@@ -120,6 +131,39 @@ export async function onRequest({ request, env }) {
   const db = env.DB;
   try {
     await init(db);
+
+    if (path === "/tg-webhook" && m === "POST") {
+      if (!env.ADMIN_PASSWORD) return J({ ok: false }, 403);
+      const sec = await hmac(env.ADMIN_PASSWORD + "|tgwh", "wh");
+      if (request.headers.get("X-Telegram-Bot-Api-Secret-Token") !== sec) return J({ ok: false }, 403);
+      const u = await request.json().catch(() => ({}));
+      const cq = u.callback_query;
+      if (cq && cq.data && cq.message && cq.message.chat && String(cq.message.chat.id) === String(env.TG_CHAT)) {
+        const mm = /^o:(\d+):(got|cancel)$/.exec(cq.data);
+        if (mm) {
+          const oid = parseInt(mm[1]), st = mm[2];
+          await db.prepare("UPDATE orders SET status = ? WHERE id = ?").bind(st, oid).run();
+          await tgApi(env, "answerCallbackQuery", { callback_query_id: cq.id, text: st === "got" ? "✅ هاتە وەرگرتن" : "❌ هاتە هەڵوەشاندن" });
+          await tgApi(env, "editMessageReplyMarkup", { chat_id: cq.message.chat.id, message_id: cq.message.message_id, reply_markup: tgKb(oid, st) });
+        }
+      }
+      return J({ ok: true });
+    }
+
+    if (path === "/my-orders" && m === "GET") {
+      const out = [];
+      for (const part of String(url.searchParams.get("o") || "").split(",").slice(0, 10)) {
+        const [i, k] = part.split(":");
+        const oid = parseInt(i);
+        if (!(oid > 0) || !k) continue;
+        const r = await db.prepare("SELECT status, data FROM orders WHERE id = ?").bind(oid).first();
+        if (!r) continue;
+        let d = {};
+        try { d = JSON.parse(r.data); } catch (e) {}
+        if (d.ck && safeEq(String(d.ck), k)) out.push({ id: oid, st: r.status });
+      }
+      return J({ orders: out });
+    }
 
     if (path === "/services" && m === "GET") {
       const d = await getDollar(db);
@@ -179,7 +223,8 @@ export async function onRequest({ request, env }) {
       const ship = (await kvGet(db, "ship")) || {};
       const fee = sub >= num(ship.t) ? num(ship.b) : num(ship.a);
       const total = sub + fee;
-      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0 };
+      const ck = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => x.toString(16).padStart(2, "0")).join("");
+      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck };
       const res = await db.prepare("INSERT INTO orders (created, status, ip, data) VALUES (?, 'new', ?, ?)").bind(new Date().toISOString(), ip, JSON.stringify(data)).run();
       const id = res.meta.last_row_id;
       const no = "#" + (1000 + id);
@@ -187,9 +232,9 @@ export async function onRequest({ request, env }) {
         "🆕 داواکاری نوێ " + no + "\n\nName: " + name + "\nLocation: " + addr + "\nNumber phone: " + phone + "\nOrder:\n" +
         lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n") +
         "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total);
-      const tg = await telegram(env, text);
+      const tg = await telegram(env, text, tgKb(id, "new"));
       await db.prepare("UPDATE orders SET data = json_set(data, '$.notified', ?) WHERE id = ?").bind(tg.ok ? 1 : 0, id).run();
-      return J({ ok: true, no, sub, fee, total });
+      return J({ ok: true, no, id, ck, sub, fee, total });
     }
 
     if (path === "/login" && m === "POST") {
@@ -265,6 +310,12 @@ export async function onRequest({ request, env }) {
           by, revenue, products: pc.n,
           visits: { today: (await kvGet(db, "v:" + today())) || 0, week, total: (await kvGet(db, "v:total")) || 0 },
         });
+      }
+      if (path === "/admin/set-webhook" && m === "POST") {
+        if (!env.TG_TOKEN) return J({ ok: false, description: "TG_TOKEN نەدانراوە" });
+        const sec = await hmac(env.ADMIN_PASSWORD + "|tgwh", "wh");
+        const r = await tgApi(env, "setWebhook", { url: url.origin + "/api/tg-webhook", secret_token: sec, allowed_updates: ["callback_query"] });
+        return J({ ok: !!r.ok, description: r.description || "" });
       }
       if (path === "/admin/test-telegram" && m === "POST") {
         const r = await telegram(env, "✅ بۆتی Penguin کار دەکات. داواکارییەکان لێرە دەگەن.");

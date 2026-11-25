@@ -219,6 +219,11 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 .pr small{font-size:11px;margin-bottom:3px}.pr b{font-size:15px}
 #instSheet{display:none;position:fixed;inset:0;background:#0006;z-index:85;align-items:flex-end;justify-content:center}
 #instBox p{margin:0;font-size:14px;line-height:1.7}
+#notes{display:none}
+body:has(#home:not([style*="none"])) #notes{display:block;position:fixed;left:14px;right:14px;bottom:calc(64vh + 46px);z-index:7}
+.note{display:flex;align-items:flex-start;gap:10px;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;line-height:1.7;box-shadow:0 4px 16px #0003;color:#fff}
+.note.got{background:#2e7d32}.note.cancel{background:#c62828}
+.note button{background:#ffffff33;border:0;color:#fff;border-radius:50%;width:26px;height:26px;flex:none;font-size:13px;padding:0}
 </style>
 </head>
 <body>
@@ -256,7 +261,7 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 بەهای گەهاندن و WhatsApp</span></button><button class="adm-sec" onclick="openSched()"><span>🕒 کاتی کارکردن</span><small id="schedSt"></small></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
 <div id="admOrders" style="display:none"><div class="section-head"><h2>📦 داواکارییەکان</h2><button class="back" onclick="closeOrders()">← ڤەگەڕیان</button></div><div id="ordList"></div></div>
 <div id="admShip" style="display:none"><div class="section-head"><h2>🚚 بەهای گەهاندن</h2><button class="back" onclick="closeShip()">← ڤەگەڕیان</button></div>
-<div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا بەهای گەهاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، بەهای گەهاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><button class="order-btn" id="tgBtn" style="background:#2a2433;display:none" onclick="testTg()">📨 تاقیکردنەوەی Telegram</button><p id="shMsg" class="order-msg"></p></div></div>
+<div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا بەهای گەهاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، بەهای گەهاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><button class="order-btn" id="tgBtn" style="background:#2a2433;display:none" onclick="testTg()">📨 تاقیکردنەوەی Telegram</button><button class="order-btn" style="background:#2a2433" onclick="setTgHook()">🔗 چالاککردنی دوگمەکانی Telegram</button><p id="shMsg" class="order-msg"></p></div></div>
 <div id="admSched" style="display:none"><div class="section-head"><h2>🕒 کاتی کارکردن</h2><button class="back" onclick="closeSched()">← ڤەگەڕیان</button></div>
 <div class="login-box" style="max-width:none;margin:0"><div class="adm-sec"><span>بەرهەمەکان پیشانبدرێن</span><label class="sw"><input type="checkbox" id="scShow"><i></i></label></div>
 <div class="adm-sec"><span>کاتژمێری خۆکار (کاتی بەغدا)</span><label class="sw"><input type="checkbox" id="scAuto"><i></i></label></div>
@@ -271,6 +276,7 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div id="zoom" onclick="closeZoom()"><img id="zoomImg" alt="" onclick="event.stopPropagation()"></div>
 <div id="shareSheet" onclick="if(event.target===this)closeShare()"><div class="cs-box"><button class="cs-x" onclick="closeShare()">✕</button><b>Share</b><a id="shWA" class="cs-btn wa" target="_blank" rel="noopener">WhatsApp</a><a id="shTG" class="cs-btn" style="background:#229ed9" target="_blank" rel="noopener">Telegram</a><button class="cs-btn" style="background:#2a2433;border:0" onclick="shareNative()">ئەپێن دی ...</button><button class="cs-btn" style="background:#6d7880;border:0" onclick="copyLink()">کۆپیکرنا لینکی</button></div></div>
 <div id="instSheet" onclick="if(event.target===this)closeInst()"><div class="cs-box" id="instBox"></div></div>
+<div id="notes"></div>
 <div id="srch"><input id="sq" oninput="doSearch()" autocomplete="off"></div><div id="sres"></div>
 <div id="prodForm"><div class="pf-top"><button onclick="closeForm()">←</button></div>
 <div class="pf-body"><label>بارکۆد <i>*</i></label><div class="pf-row"><input id="pBc" inputmode="numeric" placeholder="بارکۆد بنووسە یان سکان بکە"><button class="pf-ico" onclick="openScan()">▦</button></div>
@@ -514,7 +520,7 @@ const _po=placeOrder;placeOrder=async function(){if(!API_ON)return _po();const n
 if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=tr("need");return}
 const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
 try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
-cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no}
+cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
 catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):tr("err")}btn.disabled=false};
 async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
 const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
@@ -631,6 +637,21 @@ function offerInstall(){if(!canInstall()||lsGet("ph_offer"))return;lsSet("ph_off
 const _po2=placeOrder;placeOrder=async function(){const n=cart.length;await _po2();if(n&&cart.length===0)offerInstall()};
 const _tmI=toggleMenu;toggleMenu=function(e){updInst();_tmI(e)};
 updInst();
+
+/* ===== order status banner + telegram hook ===== */
+Object.assign(UI.ck,{nGot:"داخازیا تە هاتە وەرگرتن، دەمێ پێتڤیدا دێ گەهیتە تە",nCan:"داخازیا تە هاتە هەلوەشاندن، پەیوەندیێ بکە بۆ پتر پێزانین"});
+Object.assign(UI.ar,{nGot:"تم استلام طلبك، وسيصلك في الوقت المناسب",nCan:"تم إلغاء طلبك، تواصل معنا لمزيد من المعلومات"});
+Object.assign(UI.en,{nGot:"Your order was received and will reach you soon",nCan:"Your order was cancelled. Contact us for more information"});
+const jget=(k,d)=>{try{return JSON.parse(lsGet(k))||d}catch(e){return d}};
+let myStat=[],curNote=null;
+function renderNote(){const b=$("notes");if(!b)return;b.innerHTML=curNote?'<div class="note '+curNote.st+'"><span style="flex:1">'+tr(curNote.st==="got"?"nGot":"nCan")+'</span><button onclick="dismissNote()" aria-label="close">✖</button></div>':""}
+function pickNote(){const dis=jget("ph_dis",[]);curNote=myStat.filter(o=>(o.st==="got"||o.st==="cancel")&&!dis.includes(o.id+":"+o.st)).sort((a,b)=>b.id-a.id)[0]||null;renderNote()}
+function dismissNote(){if(!curNote)return;const dis=jget("ph_dis",[]);dis.push(curNote.id+":"+curNote.st);lsSet("ph_dis",JSON.stringify(dis.slice(-50)));pickNote()}
+async function pollMy(){const my=jget("ph_my",[]);if(!my.length||!API_ON)return;try{const d=await api("/my-orders?o="+my.map(o=>o.id+":"+o.ck).join(","));myStat=d.orders||[];pickNote()}catch(e){}}
+function rememberOrder(r){if(!r||!r.id||!r.ck)return;const my=jget("ph_my",[]);my.push({id:r.id,ck:r.ck,no:r.no});lsSet("ph_my",JSON.stringify(my.slice(-10)))}
+const _apN=applyUI;applyUI=function(){_apN();renderNote()};
+setInterval(pollMy,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollMy()});setTimeout(pollMy,2000);
+async function setTgHook(){const m=$("shMsg");m.style.color="#2a2433";m.textContent="...";try{const r=await api("/admin/set-webhook",{method:"POST",body:"{}"});m.style.color=r.ok?"#2e7d32":"#c62828";m.textContent=r.ok?"✅ دوگمەکانی Telegram چالاک کران":"⚠️ "+(r.description||"نەکرا")}catch(e){m.style.color="#c62828";m.textContent="⚠️ هەڵە"}}
 
 loadCatalog();
 </script>
