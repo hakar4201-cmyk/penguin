@@ -217,11 +217,13 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 .pr-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:visible}
 .pr{flex:none;padding:8px 2px;border-radius:12px}
 .pr small{font-size:11px;margin-bottom:3px}.pr b{font-size:15px}
+#instSheet{display:none;position:fixed;inset:0;background:#0006;z-index:85;align-items:flex-end;justify-content:center}
+#instBox p{margin:0;font-size:14px;line-height:1.7}
 </style>
 </head>
 <body>
 <header><div><div class="brand">Penguin</div><div class="sub" id="tagline">ببینـە ، داخازبـکە ، خوشیێ ببـە</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
-<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button><button onclick="closeMenu();openShare()">📤 Share</button></div>
+<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
 <section id="home">
@@ -268,6 +270,7 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div id="contactSheet" onclick="if(event.target===this)closeContact()"><div class="cs-box"><button class="cs-x" onclick="closeContact()">✕</button><b id="csTitle"></b><div id="csNum" dir="ltr"></div><a id="csCall" class="cs-btn"></a><a id="csWa" class="cs-btn wa" target="_blank" rel="noopener">WhatsApp</a></div></div>
 <div id="zoom" onclick="closeZoom()"><img id="zoomImg" alt="" onclick="event.stopPropagation()"></div>
 <div id="shareSheet" onclick="if(event.target===this)closeShare()"><div class="cs-box"><button class="cs-x" onclick="closeShare()">✕</button><b>Share</b><a id="shWA" class="cs-btn wa" target="_blank" rel="noopener">WhatsApp</a><a id="shTG" class="cs-btn" style="background:#229ed9" target="_blank" rel="noopener">Telegram</a><button class="cs-btn" style="background:#2a2433;border:0" onclick="shareNative()">ئەپێن دی ...</button><button class="cs-btn" style="background:#6d7880;border:0" onclick="copyLink()">کۆپیکرنا لینکی</button></div></div>
+<div id="instSheet" onclick="if(event.target===this)closeInst()"><div class="cs-box" id="instBox"></div></div>
 <div id="srch"><input id="sq" oninput="doSearch()" autocomplete="off"></div><div id="sres"></div>
 <div id="prodForm"><div class="pf-top"><button onclick="closeForm()">←</button></div>
 <div class="pf-body"><label>بارکۆد <i>*</i></label><div class="pf-row"><input id="pBc" inputmode="numeric" placeholder="بارکۆد بنووسە یان سکان بکە"><button class="pf-ico" onclick="openScan()">▦</button></div>
@@ -602,6 +605,32 @@ function openServices(){show("services");$("svcPray")._done=0;renderSvc();svcLoa
 const _apV=applyUI;applyUI=function(){_apV();$("mSvcT").textContent=tr("svc");renderSvc()};
 applyUI();
 setInterval(()=>{if($("services").style.display==="block")renderSvc()},60000);
+
+/* ===== install (Download) ===== */
+Object.assign(UI.ck,{instT:"تە دڤێت ئەپ لسەر شاشەیێ دابنێی بۆ داخوازکرنا زویتر؟",instYes:"بەلێ، دانان",instNo:"نەخێر",iosTip:"لە Safari دوگمەی Share (⬆️) لێبدە، پاشان «Add to Home Screen» هەلبژێرە",iosDone:"بەری نوکە من یا دانایی"});
+Object.assign(UI.ar,{instT:"هل تريد إضافة التطبيق إلى الشاشة الرئيسية لطلب أسرع؟",instYes:"نعم، إضافة",instNo:"لا",iosTip:"في Safari اضغط زر المشاركة (⬆️) ثم «إضافة إلى الشاشة الرئيسية»",iosDone:"أضفته سابقاً"});
+Object.assign(UI.en,{instT:"Add the app to your home screen for faster ordering?",instYes:"Yes, add",instNo:"No",iosTip:"In Safari tap Share (⬆️), then “Add to Home Screen”",iosDone:"Already added"});
+let dip=null;
+const isStd=()=>(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const canInstall=()=>!isStd()&&lsGet("ph_inst")!=="1"&&(!!dip||isIOS);
+function updInst(){const b=$("mDl");if(b)b.style.display=canInstall()?"block":"none"}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e;updInst()});
+window.addEventListener("appinstalled",()=>{lsSet("ph_inst","1");dip=null;closeInst();updInst()});
+function closeInst(){$("instSheet").style.display="none"}
+function instDone(){lsSet("ph_inst","1");closeInst();updInst()}
+async function doInstall(){closeInst();if(!dip)return;try{dip.prompt();const r=await dip.userChoice;if(r&&r.outcome==="accepted")lsSet("ph_inst","1")}catch(e){}dip=null;updInst()}
+function showInst(){const x='<button class="cs-x" onclick="closeInst()">✕</button><b>'+tr("instT")+'</b>';
+ if(dip)$("instBox").innerHTML=x+'<button class="cs-btn" style="border:0" onclick="doInstall()">'+tr("instYes")+'</button><button class="cs-btn" style="background:#6d7880;border:0" onclick="closeInst()">'+tr("instNo")+'</button>';
+ else if(isIOS)$("instBox").innerHTML=x+'<p>'+tr("iosTip")+'</p><button class="cs-btn" style="background:#2a2433;border:0" onclick="instDone()">'+tr("iosDone")+'</button><button class="cs-btn" style="background:#6d7880;border:0" onclick="closeInst()">'+tr("instNo")+'</button>';
+ else return;
+ $("instSheet").style.display="flex"}
+function openDownload(){if(dip)doInstall();else showInst()}
+function offerInstall(){if(!canInstall()||lsGet("ph_offer"))return;lsSet("ph_offer","1");setTimeout(showInst,1500)}
+const _po2=placeOrder;placeOrder=async function(){const n=cart.length;await _po2();if(n&&cart.length===0)offerInstall()};
+const _tmI=toggleMenu;toggleMenu=function(e){updInst();_tmI(e)};
+updInst();
 
 loadCatalog();
 </script>
