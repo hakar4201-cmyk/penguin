@@ -238,7 +238,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 </head>
 <body>
 <header><div><div class="brand">Penguin</div><div class="sub" id="tagline">ببینـە ، داخازبـکە ، خوشیێ ببـە</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
-<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button id="mMy" style="display:none" onclick="closeMenu();openMyOrders()">🧾 <span id="mMyT">داواکارییەکانم</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
+<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button id="mMy" style="display:none" onclick="closeMenu();openMyOrders()">🧾 <span id="mMyT">داخازیێن من</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
 <section id="home">
@@ -265,7 +265,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div class="svc-card"><h3 id="svcPrayT"></h3><div class="pr-row" id="svcPray"></div></div>
 </section>
 <section id="myOrders" style="display:none">
-<div class="section-head"><h2 id="moTitle">🧾 داواکارییەکانم</h2><button class="back" id="moBack" onclick="show('home')">← ڤەگەڕیان</button></div>
+<div class="section-head"><h2 id="moTitle">🧾 داخازیێن من</h2><button class="back" id="moBack" onclick="show('home')">← ڤەگەڕیان</button></div>
 <div id="moList"></div>
 </section>
 <section id="adminLogin" style="display:none">
@@ -670,7 +670,7 @@ async function setTgHook(){const m=$("shMsg");m.style.color="#2a2433";m.textCont
 
 /* ===== my orders + reorder ===== */
 VIEWS.push("myOrders");
-Object.assign(UI.ck,{mo:"داواکارییەکانم",moEmpty:"هێشتا چ داخوازکرن نینە",reo:"دووبارە داخوازکرن",miss:"هندەک بەرهەم نەمان",noItems:"ئەڤ بەرهەمە نەمانە",sNew:"نوی",sGot:"هاتە وەرگرتن",sReady:"ئامادە بوو",sSent:"گەهیشت",sCan:"هاتە هەلوەشاندن",sNa:"بەردەست نینە"});
+Object.assign(UI.ck,{mo:"داخازیێن من",moEmpty:"هێشتا چ داخوازکرن نینە",reo:"دووبارە داخوازکرن",miss:"هندەک بەرهەم نەمان",noItems:"ئەڤ بەرهەمە نەمانە",sNew:"نوی",sGot:"هاتە وەرگرتن",sReady:"ئامادە بوو",sSent:"گەهیشت",sCan:"هاتە هەلوەشاندن",sNa:"بەردەست نینە"});
 Object.assign(UI.ar,{mo:"طلباتي",moEmpty:"لا توجد طلبات بعد",reo:"إعادة الطلب",miss:"بعض المنتجات لم تعد متوفرة",noItems:"هذه المنتجات لم تعد متوفرة",sNew:"جديد",sGot:"تم الاستلام",sReady:"جاهز",sSent:"تم التوصيل",sCan:"ملغي",sNa:"غير متوفر"});
 Object.assign(UI.en,{mo:"My orders",moEmpty:"No orders yet",reo:"Order again",miss:"Some items are no longer available",noItems:"These items are no longer available",sNew:"New",sGot:"Received",sReady:"Ready",sSent:"Delivered",sCan:"Cancelled",sNa:"Unavailable"});
 const STK={new:"sNew",got:"sGot",ready:"sReady",sent:"sSent",cancel:"sCan",na:"sNa"};
