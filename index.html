@@ -224,11 +224,21 @@ body:has(#home:not([style*="none"])) #notes{display:block;position:fixed;left:14
 .note{display:flex;align-items:flex-start;gap:10px;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;line-height:1.7;box-shadow:0 4px 16px #0003;color:#fff}
 .note.got{background:#2e7d32}.note.cancel{background:#c62828}
 .note button{background:#ffffff33;border:0;color:#fff;border-radius:50%;width:26px;height:26px;flex:none;font-size:13px;padding:0}
+body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!important}
+.mo-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:10px 0}
+.mo-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mo-top small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.chip{font-size:12px;font-weight:800;border-radius:10px;padding:4px 10px;background:#eef1f5;color:#4a5560;white-space:nowrap}
+.chip.c-got{background:#e6f4ea;color:#1e7a3c}.chip.c-cancel{background:#fdeaea;color:#c62828}.chip.c-ready{background:#fff4e0;color:#b25e00}.chip.c-sent{background:#e0f0ff;color:#0b5cad}
+.mo-it{font-size:13px;line-height:1.8;margin-top:8px;color:#2a2433}
+.mo-tot{font-size:14px;font-weight:800;margin-top:6px}
+.mo-btn{width:100%;margin-top:10px;background:#f28c28;color:#fff;border:0;border-radius:12px;padding:11px;font-size:14px;font-weight:800}
+.mo-empty{text-align:center;color:var(--muted);padding:24px 0;font-size:14px}
 </style>
 </head>
 <body>
 <header><div><div class="brand">Penguin</div><div class="sub" id="tagline">ببینـە ، داخازبـکە ، خوشیێ ببـە</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
-<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
+<div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button id="mMy" style="display:none" onclick="closeMenu();openMyOrders()">🧾 <span id="mMyT">داواکارییەکانم</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
 <section id="home">
@@ -253,6 +263,10 @@ body:has(#home:not([style*="none"])) #notes{display:block;position:fixed;left:14
 <div class="svc-date" id="svcDate"></div>
 <div class="svc-card"><h3 id="svcDollarT"></h3><div id="svcDollar"></div></div>
 <div class="svc-card"><h3 id="svcPrayT"></h3><div class="pr-row" id="svcPray"></div></div>
+</section>
+<section id="myOrders" style="display:none">
+<div class="section-head"><h2 id="moTitle">🧾 داواکارییەکانم</h2><button class="back" id="moBack" onclick="show('home')">← ڤەگەڕیان</button></div>
+<div id="moList"></div>
 </section>
 <section id="adminLogin" style="display:none">
 <div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="goHome()">← ڤەگەڕیان</button></div>
@@ -634,7 +648,7 @@ function showInst(){const x='<button class="cs-x" onclick="closeInst()">✕</but
  $("instSheet").style.display="flex"}
 function openDownload(){if(dip)doInstall();else showInst()}
 function offerInstall(){if(!canInstall()||lsGet("ph_offer"))return;lsSet("ph_offer","1");setTimeout(showInst,1500)}
-const _po2=placeOrder;placeOrder=async function(){const n=cart.length;await _po2();if(n&&cart.length===0)offerInstall()};
+const _po2=placeOrder;placeOrder=async function(){const n=cart.length,g={};cart.forEach(x=>{(g[x.pid]=g[x.pid]||{pid:x.pid,name:x.name,price:x.price,n:0}).n++});lastSnap={items:Object.values(g),info:{n:$("cName").value.trim(),p:$("cPhone").value.trim(),a:$("cAddr").value.trim()}};await _po2();if(n&&cart.length===0)offerInstall()};
 const _tmI=toggleMenu;toggleMenu=function(e){updInst();_tmI(e)};
 updInst();
 
@@ -645,13 +659,38 @@ Object.assign(UI.en,{nGot:"Your order was received and will reach you soon",nCan
 const jget=(k,d)=>{try{return JSON.parse(lsGet(k))||d}catch(e){return d}};
 let myStat=[],curNote=null;
 function renderNote(){const b=$("notes");if(!b)return;b.innerHTML=curNote?'<div class="note '+curNote.st+'"><span style="flex:1">'+tr(curNote.st==="got"?"nGot":"nCan")+'</span><button onclick="dismissNote()" aria-label="close">✖</button></div>':""}
-function pickNote(){const dis=jget("ph_dis",[]);curNote=myStat.filter(o=>(o.st==="got"||o.st==="cancel")&&!dis.includes(o.id+":"+o.st)).sort((a,b)=>b.id-a.id)[0]||null;renderNote()}
+function pickNote(){const dis=jget("ph_dis",[]);curNote=myStat.filter(o=>(o.st==="got"||o.st==="cancel")&&!dis.includes(o.id+":"+o.st)).sort((a,b)=>b.id-a.id)[0]||null;renderNote();renderMy()}
 function dismissNote(){if(!curNote)return;const dis=jget("ph_dis",[]);dis.push(curNote.id+":"+curNote.st);lsSet("ph_dis",JSON.stringify(dis.slice(-50)));pickNote()}
 async function pollMy(){const my=jget("ph_my",[]);if(!my.length||!API_ON)return;try{const d=await api("/my-orders?o="+my.map(o=>o.id+":"+o.ck).join(","));myStat=d.orders||[];pickNote()}catch(e){}}
-function rememberOrder(r){if(!r||!r.id||!r.ck)return;const my=jget("ph_my",[]);my.push({id:r.id,ck:r.ck,no:r.no});lsSet("ph_my",JSON.stringify(my.slice(-10)))}
+let lastSnap=null;
+function rememberOrder(r){if(!r||!r.id||!r.ck)return;const my=jget("ph_my",[]),s=lastSnap||{};my.push({id:r.id,ck:r.ck,no:r.no,t:Date.now(),total:r.total,items:s.items||[]});lsSet("ph_my",JSON.stringify(my.slice(-10)));if(s.info&&s.info.n)lsSet("ph_info",JSON.stringify(s.info))}
 const _apN=applyUI;applyUI=function(){_apN();renderNote()};
 setInterval(pollMy,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pollMy()});setTimeout(pollMy,2000);
 async function setTgHook(){const m=$("shMsg");m.style.color="#2a2433";m.textContent="...";try{const r=await api("/admin/set-webhook",{method:"POST",body:"{}"});m.style.color=r.ok?"#2e7d32":"#c62828";m.textContent=r.ok?"✅ دوگمەکانی Telegram چالاک کران":"⚠️ "+(r.description||"نەکرا")}catch(e){m.style.color="#c62828";m.textContent="⚠️ هەڵە"}}
+
+/* ===== my orders + reorder ===== */
+VIEWS.push("myOrders");
+Object.assign(UI.ck,{mo:"داواکارییەکانم",moEmpty:"هێشتا چ داخوازکرن نینە",reo:"دووبارە داخوازکرن",miss:"هندەک بەرهەم نەمان",noItems:"ئەڤ بەرهەمە نەمانە",sNew:"نوی",sGot:"هاتە وەرگرتن",sReady:"ئامادە بوو",sSent:"گەهیشت",sCan:"هاتە هەلوەشاندن",sNa:"بەردەست نینە"});
+Object.assign(UI.ar,{mo:"طلباتي",moEmpty:"لا توجد طلبات بعد",reo:"إعادة الطلب",miss:"بعض المنتجات لم تعد متوفرة",noItems:"هذه المنتجات لم تعد متوفرة",sNew:"جديد",sGot:"تم الاستلام",sReady:"جاهز",sSent:"تم التوصيل",sCan:"ملغي",sNa:"غير متوفر"});
+Object.assign(UI.en,{mo:"My orders",moEmpty:"No orders yet",reo:"Order again",miss:"Some items are no longer available",noItems:"These items are no longer available",sNew:"New",sGot:"Received",sReady:"Ready",sSent:"Delivered",sCan:"Cancelled",sNa:"Unavailable"});
+const STK={new:"sNew",got:"sGot",ready:"sReady",sent:"sSent",cancel:"sCan",na:"sNa"};
+function renderMy(){if($("myOrders").style.display!=="block")return;$("moTitle").textContent="🧾 "+tr("mo");$("moBack").textContent=tr("back");
+ const my=jget("ph_my",[]).map((o,i)=>({o,i})).reverse(),box=$("moList");
+ if(!my.length){box.innerHTML='<div class="mo-empty">'+tr("moEmpty")+'</div>';return}
+ box.innerHTML=my.map(({o,i})=>{const st=(myStat.find(x=>x.id===o.id)||{}).st,its=o.items||[];
+  return '<div class="mo-card"><div class="mo-top"><div><b>'+esc(o.no||"")+'</b><small>'+(o.t?new Date(o.t).toLocaleDateString("en-GB"):"")+'</small></div>'+(st&&STK[st]?'<span class="chip c-'+st+'">'+tr(STK[st])+'</span>':'')+'</div>'
+  +(its.length?'<div class="mo-it">'+its.map(x=>esc(String(x.n))+' × '+esc(x.name)).join('<br>')+'</div>':'')
+  +(o.total?'<div class="mo-tot">'+money(o.total)+'</div>':'')
+  +(its.length?'<button class="mo-btn" onclick="reorder('+i+')">🔁 '+tr("reo")+'</button>':'')+'</div>'}).join("")}
+function openMyOrders(){show("myOrders");renderMy();pollMy().then(renderMy)}
+function fillInfo(){const i=jget("ph_info",null);if(!i)return;[["cName","n"],["cPhone","p"],["cAddr","a"]].forEach(([id,k])=>{const e=$(id);if(e&&!e.value)e.value=i[k]||""})}
+function reorder(i){const o=jget("ph_my",[])[i];if(!o)return;if(!isOpenNow()){toast(tr("closed"));return}
+ let miss=0;(o.items||[]).forEach(it=>{const p=customProducts.find(q=>q.id===it.pid);if(!p){miss++;return}for(let k=0;k<it.n;k++)cart.push({pid:p.id,name:p.names?p.names.ku:p.name,nm:p.names?{ck:p.names.ku,ar:p.names.ar,en:p.names.en}:{ck:p.name},price:pPrice(p)})});
+ updateCart();if(!cart.length){toast(tr("noItems"));return}
+ showCart();fillInfo();if(miss){const m=$("orderMsg");m.style.color="#c62828";m.textContent="⚠️ "+tr("miss")}}
+const _scF=showCart;showCart=function(){_scF();fillInfo()};
+const _tmM=toggleMenu;toggleMenu=function(e){$("mMy").style.display=jget("ph_my",[]).length?"block":"none";_tmM(e)};
+const _apM=applyUI;applyUI=function(){_apM();$("mMyT").textContent=tr("mo");renderMy()};
 
 loadCatalog();
 </script>
