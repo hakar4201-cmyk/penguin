@@ -4,6 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7fa">
+<meta name="description" content="ببینـە ، داخازبـکە ، خوشیێ ببـە">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Penguin">
+<meta property="og:title" content="Penguin">
+<meta property="og:description" content="ببینـە ، داخازبـکە ، خوشیێ ببـە">
+<meta property="og:url" content="https://penguin-dzb.pages.dev/">
+<meta property="og:image" content="https://penguin-dzb.pages.dev/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Penguin">
+<meta name="twitter:description" content="ببینـە ، داخازبـکە ، خوشیێ ببـە">
+<meta name="twitter:image" content="https://penguin-dzb.pages.dev/og-image.jpg">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -209,7 +223,7 @@ body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 </style>
 </head>
 <body>
-<header><div><div class="brand">Penguin</div><div class="sub" id="tagline">هەموو پێداویستییەکانت لە یەک شوێن</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
+<header><div><div class="brand">Penguin</div><div class="sub" id="tagline">ببینـە ، داخازبـکە ، خوشیێ ببـە</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
 <div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button><button onclick="closeMenu();openShare()">📤 Share</button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
@@ -305,7 +319,7 @@ function saveProduct(){let name=document.getElementById("pname").value.trim(),pr
 function renderAdmin(){document.getElementById("adminProducts").innerHTML=customProducts.length?customProducts.map((p,i)=>`<div class="admin-item"><span>${p.name} · ${money(p.price)} · کۆگا: ${p.stock}</span><button class="action danger" onclick="deleteProduct(${i})">سڕینەوە</button></div>`).join(""):"هێشتا هیچ بەرهەمەک زیاد نەکراوە"}
 function deleteProduct(i){if(confirm("ئەم بەرهەمە بسڕمەوە؟")){customProducts.splice(i,1);localStorage.setItem("ph_products",JSON.stringify(customProducts));renderAdmin()}}
 
-document.getElementById("langBtn").onclick=()=>{lang=lang==="ck"?"ar":lang==="ar"?"en":"ck";document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr":"rtl";document.getElementById("langBtn").textContent=lang==="ck"?"کوردی ▾":lang==="ar"?"العربية ▾":"English ▾";document.getElementById("tagline").textContent=lang==="ck"?"هەموو پێداویستییەکانت لە یەک شوێن":lang==="ar"?"كل احتياجاتك في مكان واحد":"All your essentials in one place";document.getElementById("welcome").textContent=lang==="ck"?"بەخێربێیت بۆ پێنگوین":lang==="ar"?"أهلاً بك في البطريق":"Welcome to Penguin";document.getElementById("hint").textContent=lang==="ck"?"ژوورێک هەڵبژێرە بۆ دیتنا بەرهەمان":lang==="ar"?"اختر غرفة لمشاهدة المنتجات":"Choose a room to browse products";document.querySelectorAll("[data-room]").forEach(el=>el.textContent=rooms[+el.dataset.room][lang]);if(document.getElementById("catalog").style.display==="block"){let idx=rooms.findIndex(r=>r[lang]===document.getElementById("roomTitle").textContent);if(idx>=0)openRoom(idx)}updateCart()};
+document.getElementById("langBtn").onclick=()=>{lang=lang==="ck"?"ar":lang==="ar"?"en":"ck";document.documentElement.lang=lang;document.documentElement.dir=lang==="en"?"ltr":"rtl";document.getElementById("langBtn").textContent=lang==="ck"?"کوردی ▾":lang==="ar"?"العربية ▾":"English ▾";document.getElementById("tagline").textContent=lang==="ck"?"ببینـە ، داخازبـکە ، خوشیێ ببـە":lang==="ar"?"كل احتياجاتك في مكان واحد":"All your essentials in one place";document.getElementById("welcome").textContent=lang==="ck"?"بەخێربێیت بۆ پێنگوین":lang==="ar"?"أهلاً بك في البطريق":"Welcome to Penguin";document.getElementById("hint").textContent=lang==="ck"?"ژوورێک هەڵبژێرە بۆ دیتنا بەرهەمان":lang==="ar"?"اختر غرفة لمشاهدة المنتجات":"Choose a room to browse products";document.querySelectorAll("[data-room]").forEach(el=>el.textContent=rooms[+el.dataset.room][lang]);if(document.getElementById("catalog").style.display==="block"){let idx=rooms.findIndex(r=>r[lang]===document.getElementById("roomTitle").textContent);if(idx>=0)openRoom(idx)}updateCart()};
 if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 
@@ -541,7 +555,7 @@ try{Object.assign(sched,JSON.parse(localStorage.getItem("ph_sched")||"{}"))}catc
 const bgdNow=()=>new Date(Date.now()+skew+3*3600e3);
 function minsOf(t){const m=/^(\d{1,2}):(\d{2})$/.exec(t||"");return m?(+m[1])*60+(+m[2]):null}
 function isOpenNow(){if(!sched.show)return false;if(!sched.auto)return true;const o=minsOf(sched.open),c=minsOf(sched.close);if(o==null||c==null||o===c)return true;const d=bgdNow(),n=d.getUTCHours()*60+d.getUTCMinutes();return o<c?(n>=o&&n<c):(n>=o||n<c)}
-Object.assign(UI.ck,{closed:"ئێستا بەرنامە گرتییە",opens:"کاتێ ڤەکرنێ: "});Object.assign(UI.ar,{closed:"التطبيق مغلق حالياً",opens:"وقت الفتح: "});Object.assign(UI.en,{closed:"We are closed now",opens:"Opens at: "});
+Object.assign(UI.ck,{closed:"نوکە بەرنامە یێ گرتیە",opens:"دەمێ ڤەکرنێ: "});Object.assign(UI.ar,{closed:"التطبيق مغلق حالياً",opens:"وقت الفتح: "});Object.assign(UI.en,{closed:"We are closed now",opens:"Opens at: "});
 function applySched(){const op=isOpenNow();document.body.classList.toggle("closed",!op);
  if(!op){$("closedTxt").textContent=tr("closed");$("closedSub").textContent=(sched.show&&sched.auto)?tr("opens")+sched.open:"";
   if($("catalog").style.display==="block"||$("cartView").style.display==="block")goHome();if($("services").style.display==="block")show("home")}
