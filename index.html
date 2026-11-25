@@ -198,6 +198,14 @@ body.closed :is(.house,#srch,#sres,.cartbar,#catalog,#cartView){display:none!imp
 .pr.nx{background:#f28c28;border-color:#f28c28;color:#fff}.pr.nx small{color:#fff}
 .svc-msg{font-size:13px;color:var(--muted);text-align:center;padding:8px}
 body.closed #services{display:none!important}
+
+body:has(#services[style*="block"]) :is(.cartbar,#contactBtn){display:none!important}
+.svc-date{justify-content:space-between;gap:10px;padding:9px 16px;border-radius:14px;margin:4px 0 10px}
+.svc-date .dw{font-size:18px;font-weight:800;color:#f28c28}
+.svc-date .dd{font-size:18px;font-weight:700;direction:ltr;letter-spacing:.5px}
+.pr-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:visible}
+.pr{flex:none;padding:8px 2px;border-radius:12px}
+.pr small{font-size:11px;margin-bottom:3px}.pr b{font-size:15px}
 </style>
 </head>
 <body>
@@ -554,7 +562,7 @@ applySched();setInterval(applySched,30000);
 
 /* ===== services ===== */
 VIEWS.push("services");
-Object.assign(UI.ck,{svc:"خزمەتگوزاری",dT:"نرخێ دۆلارێ",pT:"کاتێن نڤێژێ",dBuy:"کڕین",dSell:"فرۆتن",iqd:"د.ع",upd:"نوێکرنەوە: ",na:"ئێستا بەردەست نینە",p:["سپێدە","ڕۆژهەڵات","نیڤڕۆ","ئێڤار","مەغریب","عیشاء"]});
+Object.assign(UI.ck,{svc:"خزمەتگوزاری",dT:"نرخێ دۆلارێ",pT:"کاتێن نڤێژێ",dBuy:"کڕین",dSell:"فرۆتن",iqd:"د.ع",upd:"نوێکرنەوە: ",na:"ئێستا بەردەست نینە",p:["سپێدە","ڕۆژهەڵاتن","نیڤڕۆ","ئێڤار","مەغریب","عیشا"]});
 Object.assign(UI.ar,{svc:"الخدمات",dT:"سعر الدولار",pT:"أوقات الصلاة",dBuy:"شراء",dSell:"بيع",iqd:"د.ع",upd:"آخر تحديث: ",na:"غير متوفر حالياً",p:["الفجر","الشروق","الظهر","العصر","المغرب","العشاء"]});
 Object.assign(UI.en,{svc:"Services",dT:"Dollar rate",pT:"Prayer times",dBuy:"Buy",dSell:"Sell",iqd:"IQD",upd:"Updated: ",na:"Not available right now",p:["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"]});
 const KM=["کانوونا دووێ","شوبات","ئادار","نیسان","ئایار","حوزەیران","تەموز","ئاب","ئەیلوول","تشرینا ئێکێ","تشرینا دووێ","کانوونا ئێکێ"],KD=["یەکشەمب","دووشەمب","سێشەمب","چوارشەمب","پێنجشەمب","هەینی","شەمبی"];
@@ -564,7 +572,7 @@ function dg(n){return lang==="en"?String(n):Number(n).toLocaleString("ar-EG",{us
 function renderDate(){const d=bgdNow(),dt=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));let wd,mo;
  if(lang==="ck"){wd=KD[dt.getUTCDay()];mo=KM[dt.getUTCMonth()]}
  else{const loc=lang==="ar"?"ar-IQ":"en-GB";wd=dt.toLocaleDateString(loc,{weekday:"long",timeZone:"UTC"});mo=dt.toLocaleDateString(loc,{month:"long",timeZone:"UTC"})}
- $("svcDate").innerHTML='<div class="dn">'+dg(dt.getUTCDate())+'</div><div><div class="dw">'+wd+'</div><div class="dm">'+mo+' '+dg(dt.getUTCFullYear())+'</div></div>'}
+ $("svcDate").innerHTML='<div class="dw">'+wd+'</div><div class="dd">'+dg(dt.getUTCDate())+' / '+dg(dt.getUTCMonth()+1)+' / '+dg(dt.getUTCFullYear())+'</div>'}
 function f12(t){const m=/^(\d{1,2}):(\d{2})/.exec(t||"");if(!m)return"--:--";const h=(+m[1])%12||12;return String(h).padStart(2,"0")+":"+m[2]}
 function renderSvc(){if($("services").style.display!=="block")return;renderDate();
  $("svcTitle").textContent="🧰 "+tr("svc");$("svcBack").textContent=tr("back");$("svcDollarT").textContent="💵 "+tr("dT");$("svcPrayT").textContent="🕌 "+tr("pT");
@@ -574,7 +582,7 @@ function renderSvc(){if($("services").style.display!=="block")return;renderDate(
  if(!pr){box.innerHTML='<div class="svc-msg">'+tr("na")+'</div>';return}
  const d=bgdNow(),n=d.getUTCHours()*60+d.getUTCMinutes(),mins=PK.map(k=>minsOf(pr[k]));let nx=mins.findIndex(m=>m!=null&&m>n);if(nx<0)nx=0;
  box.innerHTML=PK.map((k,i)=>'<div class="pr'+(i===nx?' nx':'')+'"><small>'+tr("p")[i]+'</small><b>'+f12(pr[k])+'</b></div>').join("");
- const el=box.children[nx];if(el&&!box._done){box._done=1;setTimeout(()=>{try{el.scrollIntoView({inline:"center",block:"nearest"})}catch(e){}},50)}}
+ }
 async function svcLoad(){if(svcData&&Date.now()-svcAt<120000)return;try{svcData=await api("/services");svcAt=Date.now()}catch(e){}renderSvc()}
 function openServices(){show("services");$("svcPray")._done=0;renderSvc();svcLoad()}
 const _apV=applyUI;applyUI=function(){_apV();$("mSvcT").textContent=tr("svc");renderSvc()};
