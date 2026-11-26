@@ -234,6 +234,9 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 .mo-tot{font-size:14px;font-weight:800;margin-top:6px}
 .mo-btn{width:100%;margin-top:10px;background:#f28c28;color:#fff;border:0;border-radius:12px;padding:11px;font-size:14px;font-weight:800}
 .mo-empty{text-align:center;color:var(--muted);padding:24px 0;font-size:14px}
+.cv-cta{display:block;width:100%;margin:12px 0;padding:15px 16px;border:0;border-radius:18px;background:linear-gradient(135deg,#f28c28,#e0561f);color:#fff;font-size:16px;font-weight:800;box-shadow:0 4px 14px #f28c2855}
+body:has(#cvMaker[style*="block"]) :is(.cartbar,#contactBtn){display:none!important}
+body.closed #cvMaker{display:none!important}
 </style>
 </head>
 <body>
@@ -263,6 +266,7 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 <div class="svc-date" id="svcDate"></div>
 <div class="svc-card"><h3 id="svcDollarT"></h3><div id="svcDollar"></div></div>
 <div class="svc-card"><h3 id="svcPrayT"></h3><div class="pr-row" id="svcPray"></div></div>
+<button class="cv-cta" id="cvBtn" onclick="openCV()">🧾 <span id="cvBtnT"></span></button>
 </section>
 <section id="myOrders" style="display:none">
 <div class="section-head"><h2 id="moTitle">🧾 داخازیێن من</h2><button class="back" id="moBack" onclick="show('home')">← ڤەگەڕیان</button></div>
@@ -576,7 +580,7 @@ function isOpenNow(){if(!sched.show)return false;if(!sched.auto)return true;cons
 Object.assign(UI.ck,{closed:"نوکە بەرنامە یێ گرتیە",opens:"دەمێ ڤەکرنێ: "});Object.assign(UI.ar,{closed:"التطبيق مغلق حالياً",opens:"وقت الفتح: "});Object.assign(UI.en,{closed:"We are closed now",opens:"Opens at: "});
 function applySched(){const op=isOpenNow();document.body.classList.toggle("closed",!op);
  if(!op){$("closedTxt").textContent=tr("closed");$("closedSub").textContent=(sched.show&&sched.auto)?tr("opens")+sched.open:"";
-  if($("catalog").style.display==="block"||$("cartView").style.display==="block")goHome();if($("services").style.display==="block")show("home")}
+  if($("catalog").style.display==="block"||$("cartView").style.display==="block")goHome();if(["services","cvMaker"].some(i=>{const e=$(i);return e&&e.style.display==="block"}))show("home")}
  const st=$("schedSt");if(st){st.textContent=op?"کراوە":"گیراو";st.className=op?"on2":"off"}}
 const _apS=applyUI;applyUI=function(){_apS();applySched()};
 function openSched(){$("admMain").style.display="none";$("admSched").style.display="block";$("scShow").checked=!!sched.show;$("scAuto").checked=!!sched.auto;$("scOpen").value=sched.open;$("scClose").value=sched.close;$("scMsg").textContent="";schedNow();window.scrollTo(0,0)}
@@ -695,6 +699,12 @@ Object.assign(UI.ck,{notePh:"تێبینی (ئارەزوومەندانە): ئەگ
 Object.assign(UI.ar,{notePh:"ملاحظة (اختياري): اكتب إن أردت شيئاً زائداً أو أقل"});
 Object.assign(UI.en,{notePh:"Note (optional): add anything extra or less you want"});
 const _apT=applyUI;applyUI=function(){_apT();$("cNote").placeholder=tr("notePh")};
+applyUI();
+
+/* ===== CV maker entry ===== */
+const CVT={ck:"دروستکرنا CV بێ بەرامبەر",ar:"إنشاء سيرة ذاتية مجاناً",en:"Create a free CV"};
+function openCV(){const go=()=>window.CV&&CV.open();if(window.CV)return go();const s=document.createElement("script");s.src="/cv.js?v=1";s.onload=go;s.onerror=()=>toast("⚠️");document.head.appendChild(s)}
+const _apC=applyUI;applyUI=function(){_apC();const t=$("cvBtnT");if(t)t.textContent=CVT[lang]||CVT.ck;if(window.CV)CV.relang()};
 applyUI();
 
 loadCatalog();
