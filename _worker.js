@@ -201,6 +201,11 @@ export async function onRequest({ request, env }) {
       }
       const b = await request.json().catch(() => ({}));
       const name = str(b.name, 80), phone = str(b.phone, 30), addr = str(b.addr, 300), note = str(b.note, 300).replace(/[\u0000-\u001f]+/g, " ");
+      let loc = null;
+      if (b.loc && typeof b.loc === "object") {
+        const la = Number(b.loc.lat), ln = Number(b.loc.lng), ac = Math.round(Number(b.loc.acc) || 0);
+        if (Number.isFinite(la) && Number.isFinite(ln) && Math.abs(la) <= 90 && Math.abs(ln) <= 180) loc = { lat: +la.toFixed(6), lng: +ln.toFixed(6), acc: ac > 0 && ac < 100000 ? ac : 0 };
+      }
       const items = Array.isArray(b.items) ? b.items.slice(0, 60) : [];
       if (!name || phone.replace(/\D/g, "").length < 7 || !addr || !items.length) return J({ error: "invalid" }, 400);
       const since = new Date(Date.now() - 10 * 60e3).toISOString();
@@ -224,13 +229,13 @@ export async function onRequest({ request, env }) {
       const fee = sub >= num(ship.t) ? num(ship.b) : num(ship.a);
       const total = sub + fee;
       const ck = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => x.toString(16).padStart(2, "0")).join("");
-      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note };
+      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note, loc };
       const res = await db.prepare("INSERT INTO orders (created, status, ip, data) VALUES (?, 'new', ?, ?)").bind(new Date().toISOString(), ip, JSON.stringify(data)).run();
       const id = res.meta.last_row_id;
       const no = "#" + (1000 + id);
       const sep = "━━━━━━━━━━━━━━━━━";
       const text =
-        "🆕 داواکاری نوێ " + no + "\n\n▪️ " + name + "\n▪️ " + addr.replace(/\s*\n\s*/g, " ") + "\n▪️ " + phone + "\n" + sep + "\n\n" +
+        "🆕 داواکاری نوێ " + no + "\n\n▪️ " + name + "\n▪️ " + addr.replace(/\s*\n\s*/g, " ") + "\n▪️ " + phone + (loc ? "\n📍 شوێن: https://maps.google.com/?q=" + loc.lat + "," + loc.lng + (loc.acc ? " (±" + loc.acc + " م)" : "") : "") + "\n" + sep + "\n\n" +
         lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n\n") +
         "\n\n" + sep + "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total) +
         (note ? "\n\n▪️تێبینی\n" + note : "");

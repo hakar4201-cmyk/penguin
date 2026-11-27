@@ -237,6 +237,11 @@ body:has(#myOrders[style*="block"]) :is(.cartbar,#contactBtn){display:none!impor
 .cv-cta{display:block;width:100%;margin:12px 0;padding:15px 16px;border:0;border-radius:18px;background:linear-gradient(135deg,#f28c28,#e0561f);color:#fff;font-size:16px;font-weight:800;box-shadow:0 4px 14px #f28c2855}
 body:has(#cvMaker[style*="block"]) :is(.cartbar,#contactBtn){display:none!important}
 body.closed #cvMaker{display:none!important}
+.loc-box{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 4px}
+.loc-btn{flex:1;min-width:150px;padding:12px;border:1px solid #f28c28;border-radius:12px;background:#fff8ee;color:#b25e00;font-size:14px;font-weight:800}
+.loc-btn.ok{background:#e6f4ea;border-color:#bfe3c8;color:#1e7a3c}
+.loc-del{padding:11px 14px;border:1px solid #f1c4c4;border-radius:12px;background:#fff;color:#c62828;font-size:13px;font-weight:700}
+.loc-sub{width:100%;font-size:12px;color:#6d7880}
 </style>
 </head>
 <body>
@@ -257,7 +262,8 @@ body.closed #cvMaker{display:none!important}
 <div class="section-head"><h2 id="cartTitle">🛒 سەبەتا من</h2><button class="back" id="cartBack" onclick="goHome()">← ڤەگەڕیان</button></div>
 <div id="cartList"></div>
 <div id="cartTotal" class="cart-total"></div>
-<div id="custForm" class="login-box" style="margin:10px 0"><input id="cName" autocomplete="name"><input id="cPhone" type="tel" autocomplete="tel"><textarea id="cAddr" rows="2" autocomplete="street-address"></textarea><textarea id="cNote" rows="2" maxlength="300"></textarea></div>
+<div id="custForm" class="login-box" style="margin:10px 0"><input id="cName" autocomplete="name"><input id="cPhone" type="tel" autocomplete="tel"><textarea id="cAddr" rows="2" autocomplete="street-address"></textarea><textarea id="cNote" rows="2" maxlength="300"></textarea>
+<div class="loc-box"><button type="button" id="locBtn" class="loc-btn" onclick="getLoc()"></button><button type="button" id="locDel" class="loc-del" onclick="delLoc()" style="display:none"></button><div id="locSub" class="loc-sub"></div></div></div>
 <button class="order-btn" id="orderBtn" onclick="placeOrder()">داخوازکرن</button>
 <p id="orderMsg" class="order-msg"></p>
 </section>
@@ -426,7 +432,7 @@ orders.push({no,date:new Date().toLocaleString("en-GB",{hour12:false}).slice(0,1
 cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+no}
 function openOrders(){$("admMain").style.display="none";$("admSecView").style.display="none";$("admOrders").style.display="block";renderOrders();window.scrollTo(0,0)}
 function closeOrders(){$("admOrders").style.display="none";$("admMain").style.display="block";renderAdmin()}
-function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div><div>📍 ${esc(o.addr)}</div>${o.note?`<div style="background:#fff3bf;border-radius:8px;padding:6px 8px;margin:4px 0">🟨 ${esc(o.note)}</div>`:""}<ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
+function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div><div>📍 ${esc(o.addr)}</div>${o.loc?`<div>🗺️ <a href="https://maps.google.com/?q=${o.loc.lat},${o.loc.lng}" target="_blank" rel="noopener">Google Maps</a></div>`:""}${o.note?`<div style="background:#fff3bf;border-radius:8px;padding:6px 8px;margin:4px 0">🟨 ${esc(o.note)}</div>`:""}<ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
 function setSt(k,s){orders[k].st=s;saveOrders();renderOrders()}
 const _ra=renderAdmin;renderAdmin=function(){_ra();$("ordBtn").innerHTML="<span>📦 داواکارییەکان</span><small>"+orders.filter(o=>o.st==="new").length+" نوێ</small>"};
 const _sa=submitAdmin;submitAdmin=function(){_sa();$("admOrders").style.display="none"};
@@ -535,8 +541,8 @@ addCart=function(i,j,price,name){const p=customProducts.filter(q=>q.room===i)[j]
 const _po=placeOrder;placeOrder=async function(){if(!API_ON)return _po();const n=$("cName").value.trim(),p=$("cPhone").value.trim(),a=$("cAddr").value.trim(),m=$("orderMsg");
 if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=tr("need");return}
 const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
-try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,note:$("cNote").value.trim(),items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
-cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value=$("cNote").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
+try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,note:$("cNote").value.trim(),loc:myLoc,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
+cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value=$("cNote").value="";myLoc=null;updLoc();renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
 catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):tr("err")}btn.disabled=false};
 async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
 const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
@@ -705,6 +711,19 @@ applyUI();
 const CVT={ck:"دروستکرنا CV بێ بەرامبەر",ar:"إنشاء سيرة ذاتية مجاناً",en:"Create a free CV"};
 function openCV(){const go=()=>window.CV&&CV.open();if(window.CV)return go();const s=document.createElement("script");s.src="/cv.js?v=1";s.onload=go;s.onerror=()=>toast("⚠️");document.head.appendChild(s)}
 const _apC=applyUI;applyUI=function(){_apC();const t=$("cvBtnT");if(t)t.textContent=CVT[lang]||CVT.ck;if(window.CV)CV.relang()};
+applyUI();
+
+/* ===== customer location ===== */
+Object.assign(UI.ck,{locB:"📍 جهێ خو دیار بکە",locS:"ئارەزوومەندانە، دێ گەهاندنێ ئاسانتر کەت",locW:"دهێتە وەرگرتن...",locOk:"✅ جهێ تە هاتە وەرگرتن",locDel:"ژێ برن",locNo:"ڕێپێدان نەهاتە دان، ناڤنیشانێ بنڤێسە",locNs:"ئەڤ مۆبایلە پشتگیریا ڤێ تایبەتمەندیێ ناکەت"});
+Object.assign(UI.ar,{locB:"📍 حدّد موقعي",locS:"اختياري، يسهّل عملية التوصيل",locW:"جارٍ تحديد الموقع...",locOk:"✅ تم استلام موقعك",locDel:"حذف",locNo:"لم يتم السماح بالوصول، اكتب العنوان",locNs:"هذا الهاتف لا يدعم هذه الميزة"});
+Object.assign(UI.en,{locB:"📍 Share my location",locS:"Optional, makes delivery easier",locW:"Getting location...",locOk:"✅ Location received",locDel:"Remove",locNo:"Permission denied, please type your address",locNs:"This phone does not support location"});
+let myLoc=null,locMsg="";
+function updLoc(){const b=$("locBtn");if(!b)return;b.className="loc-btn"+(myLoc?" ok":"");b.textContent=myLoc?tr("locOk"):tr("locB");$("locDel").style.display=myLoc?"":"none";$("locDel").textContent=tr("locDel");$("locSub").textContent=locMsg||(myLoc?"":tr("locS"))}
+function getLoc(){if(!navigator.geolocation){locMsg=tr("locNs");updLoc();return}
+ locMsg=tr("locW");$("locBtn").textContent=tr("locW");$("locSub").textContent=locMsg;
+ navigator.geolocation.getCurrentPosition(p=>{myLoc={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy||0)};locMsg="";updLoc()},()=>{myLoc=null;locMsg=tr("locNo");updLoc()},{enableHighAccuracy:true,timeout:15000,maximumAge:60000})}
+function delLoc(){myLoc=null;locMsg="";updLoc()}
+const _apL=applyUI;applyUI=function(){_apL();updLoc()};
 applyUI();
 
 loadCatalog();
