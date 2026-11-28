@@ -66,6 +66,7 @@ function cleanProduct(p) {
     sale: num(p.sale),
     photo,
     icon: str(p.icon, 8),
+    hold: p.hold ? 1 : 0,
   };
 }
 
@@ -222,6 +223,7 @@ export async function onRequest({ request, env }) {
         const p = map.get(parseInt(it.id));
         const n = Math.max(1, Math.min(99, parseInt(it.n) || 1));
         if (!p) return J({ error: "invalid" }, 400);
+        if (p.hold) return J({ error: "gone" }, 410);
         roomsIn.add(p.room);
         const price = p.sale && p.sale < p.price ? p.sale : p.price;
         lines.push({ name: (p.names && p.names.ku) || p.name, n, price });
@@ -235,7 +237,9 @@ export async function onRequest({ request, env }) {
         brand = str(spMap[[...roomsIn][0]].name, 60) || "بەشێ تایبەت";
       }
       const ship = (await kvGet(db, "ship")) || {};
-      const fee = sub >= num(ship.t) ? num(ship.b) : num(ship.a);
+      let sh = ship;
+      if (brand) { const spS = spMap[[...roomsIn][0]]; if (spS && spS.ship) sh = spS.ship; }
+      const fee = sub >= num(sh.t) ? num(sh.b) : num(sh.a);
       const total = sub + fee;
       const ck = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => x.toString(16).padStart(2, "0")).join("");
       const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note, loc, brand };

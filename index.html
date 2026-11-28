@@ -253,6 +253,17 @@ body.sp .brand{display:flex;align-items:center;gap:8px}
 .spLogo{width:38px;height:38px;border-radius:10px;object-fit:cover}
 .spi{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e3dcd4;border-radius:12px;font-size:14px;margin:6px 0;background:#fff;font-family:inherit}
 .spr{display:flex;align-items:center;gap:10px;margin:4px 0}.spr img{width:48px;height:48px;border-radius:10px;object-fit:cover}.spr button{padding:8px 12px;border-radius:10px;border:1px solid #e3dcd4;background:#fff;font-size:13px;font-weight:700}
+.house{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+@media(min-width:700px){.house{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+.house .room{height:auto!important;min-height:0!important;transform:none!important;background:#F4F3EF!important;border:1px solid #e6e2da!important;border-radius:16px!important;box-shadow:0 3px 10px #0002!important;padding:7px 7px 9px!important;color:#2a2433!important;text-align:center!important;display:flex!important;flex-direction:column;align-items:center;gap:5px;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.house .room.wide{grid-column:auto!important}
+.house .room strong{font-size:12px!important;line-height:1.3!important;margin:0!important;color:#2a2433!important}
+.hpic{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;background:#ebe8e1;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden}
+.hpic img{width:100%;height:100%;object-fit:cover}
+.hb{position:absolute;top:5px;inset-inline-start:5px;background:#e53935;color:#fff;font-size:11px;font-weight:800;border-radius:8px;padding:2px 6px;font-style:normal}
+.hd{display:block!important;color:#e53935!important;font-size:11px!important;font-weight:800}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid #e3dcd4;border-radius:12px;padding:9px 12px;margin:6px 0;font-size:14px}
+.hrow small{display:block;color:#8a929a}.hrow button{padding:7px 12px;border-radius:10px;border:1px solid #e3dcd4;background:#fff;font-size:13px;font-weight:700}
 </style>
 </head>
 <body>
@@ -295,11 +306,14 @@ body.sp .brand{display:flex;align-items:center;gap:8px}
 <div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="goHome()">← ڤەگەڕیان</button></div>
 <div class="login-box"><input type="password" id="adminPassInput" placeholder="وشەی نهێنی" onkeydown="if(event.key==='Enter')submitAdmin()"><button class="order-btn" onclick="submitAdmin()">چوونەژوورەوە</button><p id="loginErr" class="order-msg" style="color:#c62828"></p></div>
 </section>
-<section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 بەهای گەهاندن و WhatsApp</span></button><button class="adm-sec" onclick="openSched()"><span>🕒 کاتی کارکردن</span><small id="schedSt"></small></button><button class="adm-sec" onclick="openSpecial()"><span>⭐ بەشێ تایبەت</span><small id="spSt"></small></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
+<section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 بەهای گەهاندن و WhatsApp</span></button><button class="adm-sec" onclick="openSched()"><span>🕒 کاتی کارکردن</span><small id="schedSt"></small></button><button class="adm-sec" onclick="openHold()"><span>گرتن ⏱️</span><small id="holdSt"></small></button><button class="adm-sec" onclick="openSpecial()"><span>⭐ بەشێ تایبەت</span><small id="spSt"></small></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
 <div id="admOrders" style="display:none"><div class="section-head"><h2>📦 داواکارییەکان</h2><button class="back" onclick="closeOrders()">← ڤەگەڕیان</button></div><div id="ordList"></div></div>
 <div id="admShip" style="display:none"><div class="section-head"><h2>🚚 بەهای گەهاندن</h2><button class="back" onclick="closeShip()">← ڤەگەڕیان</button></div>
 <div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا بەهای گەهاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، بەهای گەهاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><button class="order-btn" id="tgBtn" style="background:#2a2433;display:none" onclick="testTg()">📨 تاقیکردنەوەی Telegram</button><button class="order-btn" style="background:#2a2433" onclick="setTgHook()">🔗 چالاککردنی دوگمەکانی Telegram</button><p id="shMsg" class="order-msg"></p></div></div>
+<div id="admHold" style="display:none"><div class="section-head"><h2>گرتن ⏱️</h2><button class="back" onclick="closeHold()">← ڤەگەڕیان</button></div>
+<input class="spi" id="holdQ" placeholder="🔎 گەڕان" oninput="renderHold()"><div id="holdList"></div></div>
 <div id="admSpecial" style="display:none"><div class="section-head"><h2>⭐ بەشێ تایبەت</h2><button class="back" onclick="closeSpecial()">← ڤەگەڕیان</button></div>
+<button class="adm-sec" onclick="newSec()"><span>➕ بەشی نوێ</span></button>
 <div id="spList"></div><button class="order-btn" onclick="saveSpecial()">پاشەکەوتکردن</button><p id="spMsg" class="order-msg"></p></div>
 <div id="admSched" style="display:none"><div class="section-head"><h2>🕒 کاتی کارکردن</h2><button class="back" onclick="closeSched()">← ڤەگەڕیان</button></div>
 <div class="login-box" style="max-width:none;margin:0"><div class="adm-sec"><span>بەرهەمەکان پیشانبدرێن</span><label class="sw"><input type="checkbox" id="scShow"><i></i></label></div>
@@ -350,7 +364,7 @@ let lang="ck",cart=[];
 let customProducts=JSON.parse(localStorage.getItem("ph_products")||"[]");if(!localStorage.getItem("ph_v3")){customProducts.forEach(p=>{if(p.room>=3)p.room-=1});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v3","1")}if(!localStorage.getItem("ph_v4")){customProducts=customProducts.filter(p=>p.room!==6);customProducts.forEach(p=>{if(p.room>6)p.room-=1});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v4","1")}if(!localStorage.getItem("ph_v5")){const mp={"8": 0, "9": 1, "12": 2, "1": 3, "2": 4, "3": 5, "6": 6, "7": 7, "0": 8, "5": 9, "10": 10, "11": 11, "4": 4};customProducts.forEach(p=>{if(mp[p.room]!==undefined)p.room=mp[p.room]});localStorage.setItem("ph_products",JSON.stringify(customProducts));localStorage.setItem("ph_v5","1")}
 const adminPass=null;
 const pPrice=p=>p.sale&&p.sale<p.price?p.sale:p.price;const money=n=>n.toLocaleString("en-US")+" د.ع";
-function openRoom(i){document.getElementById("home").style.display="none";document.getElementById("catalog").style.display="block";const r=rooms[i];document.getElementById("roomTitle").textContent=r[lang];let extra=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.room===i);const n=extra.length;document.getElementById("roomDesc").textContent=lang==="ar"?n+" منتج":lang==="en"?n+" products":n.toLocaleString("ar-EG")+" بەرهەم";
+function openRoom(i){document.getElementById("home").style.display="none";document.getElementById("catalog").style.display="block";const r=rooms[i];document.getElementById("roomTitle").textContent=r[lang];let extra=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.room===i&&!x.p.hold);const n=extra.length;document.getElementById("roomDesc").textContent=lang==="ar"?n+" منتج":lang==="en"?n+" products":n.toLocaleString("ar-EG")+" بەرهەم";
 document.getElementById("products").innerHTML=extra.map(({p},j)=>{const nm=p.names?(p.names[lang]||p.names.ku):p.name,off=p.sale&&p.sale<p.price,eff=pPrice(p);return `<article class="product">${off?`<span class="badge">-${Math.round((p.price-p.sale)/p.price*100)}%</span>`:""}<div class="pic">${p.photo?`<img src="${p.photo}" onclick="zoomImg(this.src)" style="height:100%;max-width:100%;border-radius:10px;object-fit:cover;cursor:zoom-in">`:(p.icon||"📦")}</div><b>${esc(nm)}</b><small>${esc(p.barcode||"")}</small><div class="price-row"><span class="price">${off?`<s>${money(p.price)}</s> `:""}${money(eff)}</span><button class="add" onclick="addCart(${i},${j},${eff},'')">+ ${lang==="en"?"Add":lang==="ar"?"أضف":"زێدەکرن"}</button></div></article>`}).join("");window.scrollTo(0,0)}
 function goHome(){document.getElementById("catalog").style.display="none";document.getElementById("home").style.display="block";window.scrollTo(0,0)}
 function addCart(i,j,price,name){cart.push({name:name||rooms[i].items[j],price:price||((j+1)*1000+2500)});updateCart()}
@@ -473,7 +487,7 @@ function saveSecs(){try{localStorage.setItem("ph_secs",JSON.stringify(secs))}cat
 function buildCards(){document.querySelector(".house").innerHTML=rooms.map((r,i)=>{const m=meta[r.id]||{cls:"cx"+(i%4+1),emoji:"🏷️"};return `<button class="room ${m.cls}" onclick="openRoom(${i})"><span class="emoji">${r.img?`<img src="${r.img}">`:(r.emoji||m.emoji)}</span><strong data-room="${i}">${esc(r[lang])}</strong></button>`}).join("");applyHidden()}
 applyHidden=function(){document.querySelectorAll(".house .room").forEach(b=>{const i=+b.querySelector("[data-room]").dataset.room;b.style.display=hid.has(rooms[i].id)?"none":""})};
 togSec=function(i,on){const id=rooms[i].id;on?hid.delete(id):hid.add(id);try{localStorage.setItem("ph_hidden",JSON.stringify([...hid]))}catch(e){}applyHidden();renderAdmin()};
-renderAdmin=function(){$("admSections").innerHTML='<button class="adm-sec" onclick="newSec()"><span>➕ بەشی نوێ</span></button>'+rooms.map((r,i)=>{const off=hid.has(r.id);return `<div class="adm-sec"><span onclick="openAdmSec(${i})" style="flex:1;cursor:pointer">${esc(r.ck)}<small class="${off?"off":"on2"}">${off?"شاراوە":"پیشاندراو"}</small><small>${customProducts.filter(p=>p.room===i).length}</small></span><button class="gear" onclick="editSec(${i})">⚙️</button><label class="sw"><input type="checkbox" ${off?"":"checked"} onchange="togSec(${i},this.checked)"><i></i></label></div>`}).join("");
+renderAdmin=function(){$("admSections").innerHTML='<button class="adm-sec" onclick="newSec()"><span>➕ بەشی نوێ</span></button>'+rooms.map((r,i)=>{if(isDel(r))return "";const off=hid.has(r.id);return `<div class="adm-sec"><span onclick="openAdmSec(${i})" style="flex:1;cursor:pointer">${esc(r.ck)}<small class="${off?"off":"on2"}">${off?"شاراوە":"پیشاندراو"}</small><small>${customProducts.filter(p=>p.room===i).length}</small></span><button class="gear" onclick="editSec(${i})">⚙️</button><button class="gear" onclick="delSec(${i})">🗑️</button><label class="sw"><input type="checkbox" ${off?"":"checked"} onchange="togSec(${i},this.checked)"><i></i></label></div>`}).join("");
 $("ordBtn").innerHTML="<span>📦 داواکارییەکان</span><small>"+orders.filter(o=>o.st==="new").length+" نوێ</small>"};
 let sIdx=-1,sImg="";
 function fillSec(r){$("sCk").value=r.ck||"";$("sAr").value=r.ar||"";$("sEn").value=r.en||"";$("sEmoji").value=r.emoji||"";$("sPrev").innerHTML=sImg?`<img src="${sImg}">`:"🖼️";$("sMsg").textContent="";$("secForm").style.display="flex"}
@@ -497,7 +511,7 @@ Object.assign(UI.en,{sub:"Subtotal",fee:"Delivery fee",free:"Free",total2:"Grand
 if(!localStorage.getItem("ph_seed")){const seed=[];rooms.forEach((r,i)=>{(r.items||[]).forEach((nm,j)=>seed.push({room:i,name:nm,names:{ku:nm,ar:"",en:""},price:(j+1)*1000+2500,sale:0,photo:"",icon:r.icons[j],barcode:"",stock:0}))});customProducts=seed.concat(customProducts);savePs();try{localStorage.setItem("ph_seed","1")}catch(e){}}
 rooms.forEach(r=>{r.items=[];r.icons=[]});
 let ship={t:0,a:0,b:0,wa:""};try{ship=Object.assign(ship,JSON.parse(localStorage.getItem("ph_ship")||"{}"))}catch(e){}if(!ship.wa)ship.wa="9647504736935";
-const subT=()=>cart.reduce((t,x)=>t+x.price,0),feeOf=v=>v>=ship.t?ship.b:ship.a;
+const subT=()=>cart.reduce((t,x)=>t+x.price,0),feeOf=v=>{const s=curShip();return v>=s.t?s.b:s.a};
 function cartTotals(){const v=subT(),f=feeOf(v);return `<div class="stat"><span>${tr("sub")}</span><b>${money(v)}</b></div><div class="stat"><span>🚚 ${tr("fee")}</span><b>${f?money(f):tr("free")}</b></div><div class="stat" style="background:#2a2433;color:#fff"><span>${tr("total2")}</span><b>${money(v+f)}</b></div>`}
 function openShip(){$("admMain").style.display="none";$("admShip").style.display="block";$("shT").value=ship.t||"";$("shA").value=ship.a||"";$("shB").value=ship.b||"";$("shWa").value=ship.wa||"";$("shMsg").textContent="";window.scrollTo(0,0)}
 function closeShip(){$("admShip").style.display="none";$("admMain").style.display="block";renderAdmin()}
@@ -505,7 +519,7 @@ function saveShip(){ship={t:Number($("shT").value)||0,a:Number($("shA").value)||
 const _sa3=submitAdmin;submitAdmin=function(){_sa3();$("admShip").style.display="none"};
 const _ap3=applyUI;applyUI=function(){_ap3();$("sq").placeholder=tr("search");doSearch()};
 function doSearch(){const q=$("sq").value.trim().toLowerCase(),b=$("sres");if(!q){b.className="";return}
-const L=customProducts.filter(p=>rooms[p.room]&&!hid.has(rooms[p.room].id)&&((p.barcode||"").toLowerCase().includes(q)||[p.name,...Object.values(p.names||{})].some(x=>(x||"").toLowerCase().includes(q)))).slice(0,30);
+const L=customProducts.filter(p=>rooms[p.room]&&!hid.has(rooms[p.room].id)&&!p.hold&&!isDel(rooms[p.room])&&((p.barcode||"").toLowerCase().includes(q)||[p.name,...Object.values(p.names||{})].some(x=>(x||"").toLowerCase().includes(q)))).slice(0,30);
 b.innerHTML=L.length?L.map(p=>`<div class="sr" onclick="goSearch(${p.room})"><span>${p.photo?`<img src="${p.photo}" onclick="event.stopPropagation();zoomImg(this.src)">`:(p.icon||"📦")}</span><div><b>${esc(p.names?(p.names[lang]||p.names.ku):p.name)}</b><small>${esc(rooms[p.room][lang])}</small></div><em>${money(pPrice(p))}</em></div>`).join(""):`<p class="order-msg" style="color:#7b7384">${tr("nores")}</p>`;b.className="on"}
 function goSearch(i){$("sq").value="";$("sres").className="";openRoom(i)}
 placeOrder=function(){if(!cart.length)return;const n=$("cName").value.trim(),p=$("cPhone").value.trim(),a=$("cAddr").value.trim(),m=$("orderMsg");
@@ -529,7 +543,7 @@ if(old){const bk={...old};Object.assign(old,d);if(!savePs()){Object.assign(old,b
 else{customProducts.push({...d,stock:0});if(!savePs()){customProducts.pop();m.textContent="⚠️ شوێن پڕە، وێنەیەکی بچووکتر هەڵبژێرە";return}}
 closeForm();renderAdmTable()};
 renderAdmTable=function(){$("admSecTitle").textContent=rooms[curRoom].ck;const L=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.room===curRoom);
-$("admTable").innerHTML=L.length?"<table><tr><th>#</th><th>وێنە</th><th>بارکۆد</th><th>کوردی</th><th>عربي</th><th>English</th><th>نرخ</th><th>داشکاندن</th><th></th></tr>"+L.map((x,n)=>{const p=x.p,t=p.names||{ku:p.name,ar:"",en:""};return `<tr><td>${n+1}</td><td>${p.photo?`<img src="${p.photo}">`:(p.icon||"—")}</td><td>${esc(p.barcode||"—")}</td><td>${esc(t.ku)}</td><td>${esc(t.ar||"—")}</td><td>${esc(t.en||"—")}</td><td>${p.price||0}</td><td>${p.sale||"—"}</td><td><button class="action" onclick="editProd(${x.k})">✏️</button> <button class="action danger" onclick="delAsk(this,${x.k})">🗑️</button></td></tr>`}).join("")+"</table>":'<p class="order-msg" style="color:#7b7384">هێشتا هیچ بەرهەمەک نییە. دەست بدە لە +</p>'};
+$("admTable").innerHTML=L.length?"<table><tr><th>#</th><th>وێنە</th><th>بارکۆد</th><th>کوردی</th><th>عربي</th><th>English</th><th>نرخ</th><th>داشکاندن</th><th></th></tr>"+L.map((x,n)=>{const p=x.p,t=p.names||{ku:p.name,ar:"",en:""};return `<tr${p.hold?' style="opacity:.45"':""}><td>${n+1}</td><td>${p.photo?`<img src="${p.photo}">`:(p.icon||"—")}</td><td>${esc(p.barcode||"—")}</td><td>${esc(t.ku)}</td><td>${esc(t.ar||"—")}</td><td>${esc(t.en||"—")}</td><td>${p.price||0}</td><td>${p.sale||"—"}</td><td><button class="action" onclick="editProd(${x.k})">✏️</button> <button class="action" onclick="holdTog(${x.k})">${p.hold?"👁️":"🙈"}</button> <button class="action danger" onclick="delAsk(this,${x.k})">🗑️</button></td></tr>`}).join("")+"</table>":'<p class="order-msg" style="color:#7b7384">هێشتا هیچ بەرهەمەک نییە. دەست بدە لە +</p>'};
 delAsk=function(b,k){if(b.dataset.a){customProducts.splice(k,1);savePs();renderAdmTable()}else{b.dataset.a=1;b.textContent="دڵنیام؟";setTimeout(()=>{b.dataset.a="";b.textContent="🗑️"},3000)}};
 applyUI();
 
@@ -542,7 +556,7 @@ async function api(path,opt={}){const h={"Content-Type":"application/json"};if(t
 if(!r.ok){if(r.status===401&&tok&&path.startsWith("/admin")){tok="";sessionStorage.removeItem("ph_tok");show("adminLogin")}const e=new Error("http "+r.status);e.status=r.status;throw e}return r.json()}
 function toast(t){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";e.style.cssText="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2a2433;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;font-size:13px";document.body.appendChild(e)}e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)}
 const push=(key,value)=>api("/admin/kv",{method:"POST",body:JSON.stringify({key,value})}).catch(()=>toast("⚠️ پاشەکەوت نەکرا"));
-async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];secs=Object.assign({ovr:{},custom:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});if(d.sched)Object.assign(sched,d.sched);if(d.special){special=d.special;try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}}if(d.now)skew=d.now-Date.now();applySched();
+async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];sortCP();secs=Object.assign({ovr:{},custom:[],del:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});if(d.sched)Object.assign(sched,d.sched);if(d.special){special=d.special;try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}}if(d.now)skew=d.now-Date.now();applySched();
 rooms.length=BASE_N;rooms.forEach(r=>{if(secs.ovr[r.id])Object.assign(r,secs.ovr[r.id])});secs.custom.forEach(c=>rooms.push({...c,items:[],icons:[]}));buildCards();applyUI();
 const lb=$("shWa").previousElementSibling;if(lb)lb.textContent="ژمارەی پەیوەندی بۆ کڕیار (بە کۆدی وڵات، نموونە 9647501234567):";$("tgBtn").style.display="block";
 if(!sessionStorage.getItem("ph_vs")){sessionStorage.setItem("ph_vs","1");api("/visit",{method:"POST",body:"{}"}).catch(()=>{})}}catch(e){}}
@@ -558,7 +572,7 @@ if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=t
 const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
 try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,note:$("cNote").value.trim(),loc:myLoc,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
 cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value=$("cNote").value="";myLoc=null;updLoc();renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
-catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):e.status===409?tr("mixedErr"):tr("err")}btn.disabled=false};
+catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):e.status===409?tr("mixedErr"):e.status===410?tr("miss"):tr("err")}btn.disabled=false};
 async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
 const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
 try{const r=await api("/login",{method:"POST",body:JSON.stringify({password:$("adminPassInput").value})});tok=r.token;sessionStorage.setItem("ph_tok",tok)}catch(e){$("loginErr").textContent=e.status===429?"⚠️ زۆر هەوڵت دا، دواتر تاقی بکەرەوە":"وشەی نهێنی هەڵەیە";return}
@@ -570,8 +584,8 @@ const c=k=>(d.by[k]||{n:0}).n,row=(a,b)=>`<div class="stat"><span>${a}</span><b>
 $("admMain").style.display="none";$("admStats").style.display="block";
 $("statBox").innerHTML=row("📦 هەموو داواکارییەکان",tot)+row("🆕 نوێ",c("new"))+row("✅ وەرگیرا / ئامادەکرا",c("got")+c("ready"))+row("🚚 گەیەندرا",c("sent"))+row("❌ هەڵوەشێنراوە / بەردەست نییە",c("cancel")+c("na"))+row("💰 کۆی داواکارییەکان",money(d.revenue))+row("🛍️ ژمارەی بەرهەمان",d.products)+row("👁️ بەشە پیشاندراوەکان",(rooms.length-hid.size)+" / "+rooms.length)+row("👥 سەردانی ئەمڕۆ",d.visits.today)+row("👥 سەردانی ٧ ڕۆژی ڕابردوو",d.visits.week)+row("👥 هەموو سەردانەکان",d.visits.total)+'<div class="stat-note">سەردان = ژمارەی جارانێک کە کەسێک بەرنامەکەی کردەوە (هەر کەسێک لە یەک دانیشتندا یەکجار دەژمێردرێت).</div>';window.scrollTo(0,0)};
 const _sn=saveNew;saveNew=async function(){if(!API_ON)return _sn();const old=eIdx>=0?customProducts[eIdx]:null,snap=old?JSON.stringify(old):null,before=customProducts.length;_sn();
-const p=old||(customProducts.length>before?customProducts[customProducts.length-1]:null);if(!p||(old&&JSON.stringify(p)===snap))return;
-try{const r=await api("/admin/product",{method:"POST",body:JSON.stringify({id:p.id,data:{room:p.room,barcode:p.barcode,names:p.names,name:p.name,price:p.price,sale:p.sale||0,photo:p.photo||"",icon:p.icon||""}})});p.id=r.id}
+const p=old||(customProducts.length>before?customProducts[customProducts.length-1]:null);if(old&&snap&&p&&!p.hold&&JSON.parse(snap).hold)p.hold=1;if(!p||(old&&JSON.stringify(p)===snap))return;
+try{const r=await api("/admin/product",{method:"POST",body:JSON.stringify({id:p.id,data:{room:p.room,barcode:p.barcode,names:p.names,name:p.name,price:p.price,sale:p.sale||0,photo:p.photo||"",icon:p.icon||"",hold:p.hold?1:0}})});p.id=r.id}
 catch(e){if(old)Object.assign(p,JSON.parse(snap));else customProducts.pop();toast("⚠️ بەرهەمەکە پاشەکەوت نەکرا");renderAdmTable()}};
 const _da=delAsk;delAsk=function(b,k){if(API_ON&&b.dataset.a&&customProducts[k]){api("/admin/product?id="+customProducts[k].id,{method:"DELETE"}).catch(()=>toast("⚠️ نەسڕایەوە لەسەر سێرڤەر"))}_da(b,k)};
 
@@ -781,11 +795,48 @@ $("spList").addEventListener("click",e=>{const t=e.target.closest("button[data-s
  if(t.dataset.sp==="img")t.parentNode.querySelector("input[type=file]").click();
  else if(t.dataset.sp==="rmimg"){spD[i].img="";renderSpecial()}});
 function saveSpecial(){const m=$("spMsg"),out={};
- for(const k in spD){const s=spD[k];if(s&&s.on){if(!(s.name||"").trim()){m.style.color="#c62828";m.textContent="⚠️ ناوی براند بنووسە ("+(rooms[k]?rooms[k].ck:"")+")";return}out[k]={on:true,name:s.name.trim(),img:s.img||""}}}
+ for(const k in spD){const s=spD[k];if(s&&s.on){if(!(s.name||"").trim()){m.style.color="#c62828";m.textContent="⚠️ ناوی براند بنووسە ("+(rooms[k]?rooms[k].ck:"")+")";return}out[k]={on:true,name:s.name.trim(),img:s.img||"",ship:(s.ship&&Object.keys(s.ship).length)?{t:s.ship.t||0,a:s.ship.a||0,b:s.ship.b||0}:undefined}}}
  special=out;try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}
  if(API_ON)push("special",special);m.style.color="#2e7d32";m.textContent="✅ پاشەکەوت کرا";if(spCur!=null&&!isSp(spCur))setSp(null)}
 const _raSp=renderAdmin;renderAdmin=function(){_raSp();const e=$("spSt");if(e)e.textContent=spCount()?String(spCount()):""};
 const _sa6=submitAdmin;submitAdmin=async function(){await _sa6();$("admSpecial").style.display="none"};
+
+/* ===== section style, discounts, delete, hold, per-section shipping ===== */
+Object.assign(UI.ck,{hasSale:"داشکان هەیە"});Object.assign(UI.ar,{hasSale:"يوجد خصم"});Object.assign(UI.en,{hasSale:"On sale"});
+function isDel(r){return !!(r&&secs.del&&secs.del.includes(r.id))}
+const pctOf=p=>p&&p.sale&&p.sale<p.price?Math.round((p.price-p.sale)/p.price*100):0;
+function secDisc(i){let m=0;customProducts.forEach(p=>{if(p.room===i&&!p.hold)m=Math.max(m,pctOf(p))});return m}
+function sortCP(){customProducts=customProducts.map((p,i)=>({p,i})).sort((a,b)=>a.p.room-b.p.room||(a.p.hold?1:0)-(b.p.hold?1:0)||pctOf(b.p)-pctOf(a.p)||a.i-b.i).map(x=>x.p)}
+function curShip(){const c=cartGrp();if(c&&c[0]==="s"){const s=special[+c.slice(1)];if(s&&s.ship)return{t:+s.ship.t||0,a:+s.ship.a||0,b:+s.ship.b||0}}return ship}
+buildCards=function(){document.querySelector(".house").innerHTML=rooms.map((r,i)=>{if(isDel(r))return"";const m=meta[r.id]||{emoji:"🏷️"},d=secDisc(i);
+ return '<button class="room hc" onclick="openRoom('+i+')"><span class="hpic">'+(r.img?'<img src="'+r.img+'" alt="">':'<span>'+(r.emoji||m.emoji)+'</span>')+(d?'<em class="hb" dir="ltr">-'+d+'%</em>':'')+'</span><strong data-room="'+i+'">'+esc(r[lang])+'</strong>'+(d?'<small class="hd">'+tr("hasSale")+'</small>':'')+'</button>'}).join("");applyHidden()};
+const _orH=openRoom;openRoom=function(i){sortCP();_orH(i)};
+const _apH=applyUI;applyUI=function(){_apH();buildCards()};
+async function delSec(i){const r=rooms[i];if(!r)return;const L=customProducts.filter(p=>p.room===i);
+ if(!confirm("بەشی «"+r.ck+"» بسڕدرێتەوە؟"+(L.length?"\n"+L.length+" بەرهەمی ناویشی دەسڕدرێنەوە":"")))return;
+ if(API_ON){for(const p of L){try{await api("/admin/product?id="+p.id,{method:"DELETE"})}catch(e){toast("⚠️ نەسڕایەوە لەسەر سێرڤەر");return}}}
+ customProducts=customProducts.filter(p=>p.room!==i);if(!API_ON)savePs();
+ secs.del=secs.del||[];secs.del.push(r.id);delete special[i];delete spD[i];
+ saveSecs();try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}if(API_ON)push("special",special);
+ buildCards();renderAdmin()}
+async function holdTog(k){const p=customProducts[k];if(!p)return;p.hold=p.hold?0:1;
+ if(API_ON){try{await api("/admin/product",{method:"POST",body:JSON.stringify({id:p.id,data:{room:p.room,barcode:p.barcode,names:p.names,name:p.name,price:p.price,sale:p.sale||0,photo:p.photo||"",icon:p.icon||"",hold:p.hold?1:0}})})}catch(e){p.hold=p.hold?0:1;toast("⚠️ نەگۆڕدرا");return}}else savePs();
+ renderAdmTable();if($("admHold").style.display==="block")renderHold();buildCards();renderAdmin()}
+function openHold(){$("admMain").style.display="none";$("admHold").style.display="block";$("holdQ").value="";renderHold();window.scrollTo(0,0)}
+function closeHold(){$("admHold").style.display="none";$("admMain").style.display="block";renderAdmin()}
+function renderHold(){const q=($("holdQ").value||"").toLowerCase(),L=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.hold&&(!q||[x.p.name,...Object.values(x.p.names||{}),x.p.barcode].some(v=>(v||"").toLowerCase().includes(q))));
+ $("holdList").innerHTML=L.length?L.map(x=>'<div class="hrow"><span>'+esc((x.p.names&&x.p.names.ku)||x.p.name)+'<small>'+esc(rooms[x.p.room]?rooms[x.p.room].ck:"")+'</small></span><button onclick="holdTog('+x.k+')">👁️ پیشاندان</button></div>').join(""):'<p class="order-msg" style="color:#7b7384">هیچ بەرهەمێک نەگیراوە</p>'}
+const _raH=renderAdmin;renderAdmin=function(){_raH();const e=$("holdSt"),n=customProducts.filter(p=>p.hold).length;if(e)e.textContent=n?String(n):"";if($("admSpecial").style.display==="block")renderSpecial()};
+const _sa7=submitAdmin;submitAdmin=async function(){await _sa7();$("admHold").style.display="none"};
+/* special panel: hide deleted sections + shipping per section */
+renderSpecial=function(){$("spList").innerHTML=rooms.map((r,i)=>{if(isDel(r))return"";const s=spD[i]||{},sh=s.ship||{};
+ const f=(k,l)=>'<label style="font-size:12px;font-weight:700;display:block;margin-top:4px">'+l+'</label><input class="spi" type="number" inputmode="numeric" min="0" data-sp="sh_'+k+'" data-i="'+i+'" value="'+(sh[k]==null?"":sh[k])+'">';
+ return '<div class="login-box" style="max-width:none;margin:8px 0"><div class="adm-sec"><span>'+esc(r.ck)+'</span><label class="sw"><input type="checkbox" data-sp="on" data-i="'+i+'"'+(s.on?" checked":"")+'><i></i></label></div>'+
+ (s.on?'<input class="spi" data-sp="name" data-i="'+i+'" placeholder="ناوی براند (ناوی ئەو مارکێتە)" value="'+esc(s.name||"")+'"><div class="spr">'+(s.img?'<img src="'+s.img+'" alt="">':"")+'<button data-sp="img" data-i="'+i+'">وێنەی براند</button>'+(s.img?'<button data-sp="rmimg" data-i="'+i+'">سڕینەوە</button>':"")+'<input type="file" accept="image/*" data-sp="file" data-i="'+i+'" style="display:none"></div>'+
+ '<b style="font-size:13px;display:block;margin-top:8px">🚚 بەهای گەهاندن</b>'+f("t","سنووری کۆی کڕین (د.ع)")+f("a","گەهاندن ئەگەر کۆ کەمتر بێت لە سنوور (د.ع)")+f("b","گەهاندن ئەگەر کۆ بگاتە سنوور (٠ = بێ بەرامبەر)"):"")+'</div>'}).join("")};
+$("spList").addEventListener("input",e=>{const t=e.target,k=t.dataset.sp;if(!k||k.slice(0,3)!=="sh_")return;const i=t.dataset.i;spD[i]=spD[i]||{};spD[i].ship=spD[i].ship||{};
+ if(t.value==="")delete spD[i].ship[k.slice(3)];else spD[i].ship[k.slice(3)]=Math.max(0,Number(t.value)||0)});
+sortCP();buildCards();
 
 loadCatalog();
 </script>
