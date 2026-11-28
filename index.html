@@ -242,11 +242,24 @@ body.closed #cvMaker{display:none!important}
 .loc-btn.ok{background:#e6f4ea;border-color:#bfe3c8;color:#1e7a3c}
 .loc-del{padding:11px 14px;border:1px solid #f1c4c4;border-radius:12px;background:#fff;color:#c62828;font-size:13px;font-weight:700}
 .loc-sub{width:100%;font-size:12px;color:#6d7880}
+#spNote{display:none;margin:0 14px 8px;background:#fff4c2;color:#7a4b00;border-radius:12px;padding:9px 0;overflow:hidden;font-size:13px;font-weight:800}
+#spNote span{display:inline-block;white-space:nowrap;padding:0 12px;animation:spm 6s ease-in-out infinite alternate}
+@keyframes spm{from{transform:translateX(0)}to{transform:translateX(var(--sd,16px))}}
+body.sp #spNote{display:block}
+#spWarn{display:none;align-items:center;gap:8px;margin:0 14px 8px;background:#c62828;color:#fff;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:800;line-height:1.6}
+#spWarn b{flex:1}#spWarn button{background:#ffffff33;border:0;color:#fff;border-radius:50%;width:26px;height:26px;padding:0;font-size:13px;flex:none}
+body.sp .hbtns,body.sp #menu{display:none!important}
+body.sp .brand{display:flex;align-items:center;gap:8px}
+.spLogo{width:38px;height:38px;border-radius:10px;object-fit:cover}
+.spi{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e3dcd4;border-radius:12px;font-size:14px;margin:6px 0;background:#fff;font-family:inherit}
+.spr{display:flex;align-items:center;gap:10px;margin:4px 0}.spr img{width:48px;height:48px;border-radius:10px;object-fit:cover}.spr button{padding:8px 12px;border-radius:10px;border:1px solid #e3dcd4;background:#fff;font-size:13px;font-weight:700}
 </style>
 </head>
 <body>
 <header><div><div class="brand">Penguin</div><div class="sub" id="tagline">ببینـە ، داخازبـکە ، خوشیێ ببـە</div></div><div class="hbtns"><button id="menuBtn" onclick="toggleMenu(event)" aria-label="menu">⋮</button><button class="lang" id="langBtn">کوردی ▾</button></div></header>
 <div id="menu"><button onclick="closeMenu();openServices()">🧰 <span id="mSvcT">خزمەتگوزاری</span></button><button id="mMy" style="display:none" onclick="closeMenu();openMyOrders()">🧾 <span id="mMyT">داخازیێن من</span></button><button onclick="closeMenu();openShare()">📤 Share</button><button id="mDl" style="display:none" onclick="closeMenu();openDownload()">⬇️ Download</button><button onclick="closeMenu();adminLogin()">⚙️ <span id="mMgmtT">Management</span></button></div>
+<div id="spNote"><span id="spNoteT"></span></div>
+<div id="spWarn"><span>⚠️</span><b id="spWarnT"></b><button onclick="hideWarn()" aria-label="close">✖</button></div>
 <div class="cartbar"><div><b id="cartLabel">🛒 سەبەت</b><div class="cart-count" id="cartInfo">0 بەرهەم</div></div><button onclick="showCart()" id="cartButton">دیتنا سەبەتێ</button></div>
 <main>
 <section id="home">
@@ -282,10 +295,12 @@ body.closed #cvMaker{display:none!important}
 <div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="goHome()">← ڤەگەڕیان</button></div>
 <div class="login-box"><input type="password" id="adminPassInput" placeholder="وشەی نهێنی" onkeydown="if(event.key==='Enter')submitAdmin()"><button class="order-btn" onclick="submitAdmin()">چوونەژوورەوە</button><p id="loginErr" class="order-msg" style="color:#c62828"></p></div>
 </section>
-<section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 بەهای گەهاندن و WhatsApp</span></button><button class="adm-sec" onclick="openSched()"><span>🕒 کاتی کارکردن</span><small id="schedSt"></small></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
+<section id="admin"><div id="admMain"><div class="section-head"><h2>🔐 بەڕێوەبەر</h2><button class="back" onclick="closeAdmin()">← دەرچوون</button></div><button class="adm-sec" onclick="openShip()"><span>🚚 بەهای گەهاندن و WhatsApp</span></button><button class="adm-sec" onclick="openSched()"><span>🕒 کاتی کارکردن</span><small id="schedSt"></small></button><button class="adm-sec" onclick="openSpecial()"><span>⭐ بەشێ تایبەت</span><small id="spSt"></small></button><button class="adm-sec" id="statBtn" onclick="openStats()"><span>📊 داتای گشتی</span></button><button class="adm-sec" id="ordBtn" onclick="openOrders()">📦 داواکارییەکان</button><div id="admSections"></div></div>
 <div id="admOrders" style="display:none"><div class="section-head"><h2>📦 داواکارییەکان</h2><button class="back" onclick="closeOrders()">← ڤەگەڕیان</button></div><div id="ordList"></div></div>
 <div id="admShip" style="display:none"><div class="section-head"><h2>🚚 بەهای گەهاندن</h2><button class="back" onclick="closeShip()">← ڤەگەڕیان</button></div>
 <div class="login-box" style="max-width:none;margin:0"><p>ئەگەر بەهای داواکاری <b>کەمتر</b> بێت لە:</p><input id="shT" inputmode="numeric"><p>ئەوا بەهای گەهاندن:</p><input id="shA" inputmode="numeric"><p>ئەگەر بەهای داواکاری <b>زیاتر</b> بێت لە هەمان بڕ، بەهای گەهاندن:</p><input id="shB" inputmode="numeric"><p>ژمارەی WhatsApp ـی تۆ بە کۆدی وڵاتەوە (نموونە: 9647501234567):</p><input id="shWa" inputmode="tel"><button class="order-btn" onclick="saveShip()">پاشەکەوتکردن</button><button class="order-btn" id="tgBtn" style="background:#2a2433;display:none" onclick="testTg()">📨 تاقیکردنەوەی Telegram</button><button class="order-btn" style="background:#2a2433" onclick="setTgHook()">🔗 چالاککردنی دوگمەکانی Telegram</button><p id="shMsg" class="order-msg"></p></div></div>
+<div id="admSpecial" style="display:none"><div class="section-head"><h2>⭐ بەشێ تایبەت</h2><button class="back" onclick="closeSpecial()">← ڤەگەڕیان</button></div>
+<div id="spList"></div><button class="order-btn" onclick="saveSpecial()">پاشەکەوتکردن</button><p id="spMsg" class="order-msg"></p></div>
 <div id="admSched" style="display:none"><div class="section-head"><h2>🕒 کاتی کارکردن</h2><button class="back" onclick="closeSched()">← ڤەگەڕیان</button></div>
 <div class="login-box" style="max-width:none;margin:0"><div class="adm-sec"><span>بەرهەمەکان پیشانبدرێن</span><label class="sw"><input type="checkbox" id="scShow"><i></i></label></div>
 <div class="adm-sec"><span>کاتژمێری خۆکار (کاتی بەغدا)</span><label class="sw"><input type="checkbox" id="scAuto"><i></i></label></div>
@@ -336,7 +351,7 @@ let customProducts=JSON.parse(localStorage.getItem("ph_products")||"[]");if(!loc
 const adminPass=null;
 const pPrice=p=>p.sale&&p.sale<p.price?p.sale:p.price;const money=n=>n.toLocaleString("en-US")+" د.ع";
 function openRoom(i){document.getElementById("home").style.display="none";document.getElementById("catalog").style.display="block";const r=rooms[i];document.getElementById("roomTitle").textContent=r[lang];let extra=customProducts.map((p,k)=>({p,k})).filter(x=>x.p.room===i);const n=extra.length;document.getElementById("roomDesc").textContent=lang==="ar"?n+" منتج":lang==="en"?n+" products":n.toLocaleString("ar-EG")+" بەرهەم";
-document.getElementById("products").innerHTML=extra.map(({p},j)=>{const nm=p.names?(p.names[lang]||p.names.ku):p.name,off=p.sale&&p.sale<p.price,eff=pPrice(p);return `<article class="product">${off?`<span class="badge">-${Math.round((p.price-p.sale)/p.price*100)}%</span>`:""}<div class="pic">${p.photo?`<img src="${p.photo}" onclick="zoomImg(this.src)" style="height:100%;max-width:100%;border-radius:10px;object-fit:cover;cursor:zoom-in">`:(p.icon||"📦")}</div><b>${esc(nm)}</b><small>${esc(p.barcode||"")}</small><div class="price-row"><span class="price">${off?`<s>${money(p.price)}</s> `:""}${money(eff)}</span><button class="add" onclick="addCart(${i},${j},${eff},'')">+ ${lang==="en"?"Add":lang==="ar"?"أضف":"زیادکردن"}</button></div></article>`}).join("");window.scrollTo(0,0)}
+document.getElementById("products").innerHTML=extra.map(({p},j)=>{const nm=p.names?(p.names[lang]||p.names.ku):p.name,off=p.sale&&p.sale<p.price,eff=pPrice(p);return `<article class="product">${off?`<span class="badge">-${Math.round((p.price-p.sale)/p.price*100)}%</span>`:""}<div class="pic">${p.photo?`<img src="${p.photo}" onclick="zoomImg(this.src)" style="height:100%;max-width:100%;border-radius:10px;object-fit:cover;cursor:zoom-in">`:(p.icon||"📦")}</div><b>${esc(nm)}</b><small>${esc(p.barcode||"")}</small><div class="price-row"><span class="price">${off?`<s>${money(p.price)}</s> `:""}${money(eff)}</span><button class="add" onclick="addCart(${i},${j},${eff},'')">+ ${lang==="en"?"Add":lang==="ar"?"أضف":"زێدەکرن"}</button></div></article>`}).join("");window.scrollTo(0,0)}
 function goHome(){document.getElementById("catalog").style.display="none";document.getElementById("home").style.display="block";window.scrollTo(0,0)}
 function addCart(i,j,price,name){cart.push({name:name||rooms[i].items[j],price:price||((j+1)*1000+2500)});updateCart()}
 function updateCart(){document.getElementById("cartInfo").textContent=cart.length+" "+(lang==="en"?"items":lang==="ar"?"منتجات":"بەرهەم");}
@@ -432,7 +447,7 @@ orders.push({no,date:new Date().toLocaleString("en-GB",{hour12:false}).slice(0,1
 cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value="";renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+no}
 function openOrders(){$("admMain").style.display="none";$("admSecView").style.display="none";$("admOrders").style.display="block";renderOrders();window.scrollTo(0,0)}
 function closeOrders(){$("admOrders").style.display="none";$("admMain").style.display="block";renderAdmin()}
-function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div><div>📍 ${esc(o.addr)}</div>${o.loc?`<div>🗺️ <a href="https://maps.google.com/?q=${o.loc.lat},${o.loc.lng}" target="_blank" rel="noopener">Google Maps</a></div>`:""}${o.note?`<div style="background:#fff3bf;border-radius:8px;padding:6px 8px;margin:4px 0">🟨 ${esc(o.note)}</div>`:""}<ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
+function renderOrders(){$("ordList").innerHTML=orders.length?orders.map((o,k)=>({o,k})).reverse().map(({o,k})=>`<div class="ord"><div><b>${o.no}</b> · ${o.date} · ${ST[o.st]}</div><div>👤 ${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>${o.brand?`<div>📂 ${esc(o.brand)}</div>`:""}<div>📍 ${esc(o.addr)}</div>${o.loc?`<div>🗺️ <a href="https://maps.google.com/?q=${o.loc.lat},${o.loc.lng}" target="_blank" rel="noopener">Google Maps</a></div>`:""}${o.note?`<div style="background:#fff3bf;border-radius:8px;padding:6px 8px;margin:4px 0">🟨 ${esc(o.note)}</div>`:""}<ul>${o.items.map(i=>`<li>${esc(i.name)} × ${i.n}</li>`).join("")}</ul><div><b>${money(o.total)}</b></div><div class="st">${Object.keys(ST).map(s=>`<button class="${o.st===s?"on":""}" onclick="setSt(${k},'${s}')">${ST[s]}</button>`).join("")}</div></div>`).join(""):'<p class="order-msg" style="color:#7b7384">هێشتا هیچ داواکارییەک نییە</p>'}
 function setSt(k,s){orders[k].st=s;saveOrders();renderOrders()}
 const _ra=renderAdmin;renderAdmin=function(){_ra();$("ordBtn").innerHTML="<span>📦 داواکارییەکان</span><small>"+orders.filter(o=>o.st==="new").length+" نوێ</small>"};
 const _sa=submitAdmin;submitAdmin=function(){_sa();$("admOrders").style.display="none"};
@@ -527,7 +542,7 @@ async function api(path,opt={}){const h={"Content-Type":"application/json"};if(t
 if(!r.ok){if(r.status===401&&tok&&path.startsWith("/admin")){tok="";sessionStorage.removeItem("ph_tok");show("adminLogin")}const e=new Error("http "+r.status);e.status=r.status;throw e}return r.json()}
 function toast(t){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";e.style.cssText="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2a2433;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;font-size:13px";document.body.appendChild(e)}e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)}
 const push=(key,value)=>api("/admin/kv",{method:"POST",body:JSON.stringify({key,value})}).catch(()=>toast("⚠️ پاشەکەوت نەکرا"));
-async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];secs=Object.assign({ovr:{},custom:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});if(d.sched)Object.assign(sched,d.sched);if(d.now)skew=d.now-Date.now();applySched();
+async function loadCatalog(){try{const d=await api("/catalog");API_ON=true;customProducts=d.products||[];secs=Object.assign({ovr:{},custom:[]},d.secs||{});hid=new Set(d.hidden||[]);ship=Object.assign({t:0,a:0,b:0},d.ship||{});if(d.sched)Object.assign(sched,d.sched);if(d.special){special=d.special;try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}}if(d.now)skew=d.now-Date.now();applySched();
 rooms.length=BASE_N;rooms.forEach(r=>{if(secs.ovr[r.id])Object.assign(r,secs.ovr[r.id])});secs.custom.forEach(c=>rooms.push({...c,items:[],icons:[]}));buildCards();applyUI();
 const lb=$("shWa").previousElementSibling;if(lb)lb.textContent="ژمارەی پەیوەندی بۆ کڕیار (بە کۆدی وڵات، نموونە 9647501234567):";$("tgBtn").style.display="block";
 if(!sessionStorage.getItem("ph_vs")){sessionStorage.setItem("ph_vs","1");api("/visit",{method:"POST",body:"{}"}).catch(()=>{})}}catch(e){}}
@@ -543,7 +558,7 @@ if(!n||p.replace(/\D/g,"").length<7||!a){m.style.color="#c62828";m.textContent=t
 const cnt={};cart.forEach(x=>{cnt[x.pid]=(cnt[x.pid]||0)+1});const btn=$("orderBtn");btn.disabled=true;
 try{const r=await api("/order",{method:"POST",body:JSON.stringify({name:n,phone:p,addr:a,note:$("cNote").value.trim(),loc:myLoc,items:Object.entries(cnt).map(([id,c])=>({id:+id,n:c}))})});
 cart.length=0;updateCart();$("cName").value=$("cPhone").value=$("cAddr").value=$("cNote").value="";myLoc=null;updLoc();renderCart();m.style.color="#2e7d32";m.textContent=tr("done")+"  "+tr("no")+r.no;rememberOrder(r)}
-catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):tr("err")}btn.disabled=false};
+catch(e){m.style.color="#c62828";m.textContent=e.status===429?tr("busy"):e.status===403?tr("closed"):e.status===409?tr("mixedErr"):tr("err")}btn.disabled=false};
 async function loadOrders(){const d=await api("/admin/orders");orders=d.orders.reverse()}
 const _sa4=submitAdmin;submitAdmin=async function(){if(!API_ON){if(adminPass)return _sa4();$("loginErr").textContent="⚠️ سێرڤەر بەردەست نییە";return}
 try{const r=await api("/login",{method:"POST",body:JSON.stringify({password:$("adminPassInput").value})});tok=r.token;sessionStorage.setItem("ph_tok",tok)}catch(e){$("loginErr").textContent=e.status===429?"⚠️ زۆر هەوڵت دا، دواتر تاقی بکەرەوە":"وشەی نهێنی هەڵەیە";return}
@@ -725,6 +740,52 @@ function getLoc(){if(!navigator.geolocation){locMsg=tr("locNs");updLoc();return}
 function delLoc(){myLoc=null;locMsg="";updLoc()}
 const _apL=applyUI;applyUI=function(){_apL();updLoc()};
 applyUI();
+
+/* ===== special sections (separate orders) ===== */
+Object.assign(UI.ck,{done:"✅ داخازیاتە هاتە وەرگرتن،",no:"ژمارا داخازیێ ",
+ spN:"ئاگەهـداری ! تو دشێی بتنێ ل براندا {b} داخازیێ بکەی",wSp:"د سەبەتا تەدا بەرهەمێن براندا {b} هەنە. داخازیێ تەمام بکە، پاشی داخازیەکا دی بنێرە",wN:"د سەبەتا تەدا بەرهەمێن دی هەنە. داخازیێ تەمام بکە، پاشی داخازیەکا دی بنێرە",mixedErr:"ناکرێت بەشێن جودا ل یەک داخازیێ بن"});
+Object.assign(UI.ar,{spN:"تنبيه! يمكنك الطلب من علامة {b} فقط",wSp:"في سلتك منتجات من علامة {b}. أكمل طلبك أولاً ثم أرسل طلباً جديداً",wN:"في سلتك منتجات أخرى. أكمل طلبك أولاً ثم أرسل طلباً جديداً",mixedErr:"لا يمكن جمع أقسام منفصلة في طلب واحد"});
+Object.assign(UI.en,{spN:"Notice! You can only order from {b}",wSp:"Your cart has items from {b}. Finish this order first, then send a new one",wN:"Your cart has other items. Finish this order first, then send a new one",mixedErr:"Separate sections cannot be combined in one order"});
+let special={},spCur=null,brandOrig=null;
+try{special=JSON.parse(localStorage.getItem("ph_special")||"{}")}catch(e){}
+const isSp=i=>!!(special[i]&&special[i].on);
+const grpOf=p=>isSp(p.room)?"s"+p.room:"n";
+function cartGrp(){if(!cart.length)return null;const p=customProducts.find(q=>q.id===cart[0].pid);return p?grpOf(p):"n"}
+function setSp(i){const br=document.querySelector(".brand");if(brandOrig===null)brandOrig=br.innerHTML;spCur=i;document.body.classList.toggle("sp",i!=null);
+ if(i!=null){const s=special[i]||{};br.innerHTML=(s.img?'<img class="spLogo" src="'+s.img+'" alt="">':"")+"<span>"+esc(s.name||"")+"</span>";
+  const t=$("spNoteT");t.textContent=tr("spN").replace("{b}",s.name||"");t.style.setProperty("--sd","0px");
+  const box=t.parentNode,d=t.scrollWidth-box.clientWidth,r=lang!=="en";t.style.setProperty("--sd",(d>4?(r?1:-1)*(d+4):(r?-14:14))+"px")}
+ else br.innerHTML=brandOrig}
+function showWarn(){const c=cartGrp();let b="";if(c&&c[0]==="s"){const s=special[+c.slice(1)]||{};b=s.name||""}
+ $("spWarnT").textContent=tr(c&&c[0]==="s"?"wSp":"wN").replace("{b}",b);$("spWarn").style.display="flex"}
+function hideWarn(){$("spWarn").style.display="none"}
+const _acS=addCart;addCart=function(i,j,price,name){const p=customProducts.filter(q=>q.room===i)[j];if(p){const c=cartGrp();if(c&&c!==grpOf(p)){showWarn();return}}_acS(i,j,price,name)};
+const _orS=openRoom;openRoom=function(i){_orS(i);setSp(isSp(i)?i:null);const g=isSp(i)?"s"+i:"n",c=cartGrp();if(c&&c!==g)showWarn();else hideWarn()};
+const _ghS=goHome;goHome=function(){_ghS();setSp(null);hideWarn()};
+const _shS=show;show=function(id){_shS(id);const c=cartGrp();setSp(id==="cartView"&&c&&c[0]==="s"?+c.slice(1):null);if(id!=="catalog")hideWarn()};
+const _ucS=updateCart;updateCart=function(){_ucS();if(!cart.length)hideWarn()};
+const _roS=reorder;reorder=function(i){const o=jget("ph_my",[])[i],p=o&&(o.items||[]).map(it=>customProducts.find(q=>q.id===it.pid)).find(Boolean);if(p&&cart.length&&cartGrp()!==grpOf(p)){showWarn();return}_roS(i)};
+const _apSp=applyUI;applyUI=function(){_apSp();if(spCur!=null)setSp(spCur)};
+/* management panel */
+let spD={};
+function spCount(){return Object.values(special||{}).filter(s=>s&&s.on).length}
+function openSpecial(){spD=JSON.parse(JSON.stringify(special||{}));$("admMain").style.display="none";$("admSpecial").style.display="block";$("spMsg").textContent="";renderSpecial();window.scrollTo(0,0)}
+function closeSpecial(){$("admSpecial").style.display="none";$("admMain").style.display="block";renderAdmin()}
+function renderSpecial(){$("spList").innerHTML=rooms.map((r,i)=>{const s=spD[i]||{};return '<div class="login-box" style="max-width:none;margin:8px 0"><div class="adm-sec"><span>'+esc(r.ck)+'</span><label class="sw"><input type="checkbox" data-sp="on" data-i="'+i+'"'+(s.on?" checked":"")+'><i></i></label></div>'+
+ (s.on?'<input class="spi" data-sp="name" data-i="'+i+'" placeholder="ناوی براند (ناوی ئەو مارکێتە)" value="'+esc(s.name||"")+'"><div class="spr">'+(s.img?'<img src="'+s.img+'" alt="">':"")+'<button data-sp="img" data-i="'+i+'">وێنەی براند</button>'+(s.img?'<button data-sp="rmimg" data-i="'+i+'">سڕینەوە</button>':"")+'<input type="file" accept="image/*" data-sp="file" data-i="'+i+'" style="display:none"></div>':"")+'</div>'}).join("")}
+$("spList").addEventListener("change",e=>{const t=e.target,k=t.dataset.sp,i=t.dataset.i;if(!k)return;spD[i]=spD[i]||{};
+ if(k==="on"){spD[i].on=t.checked;renderSpecial()}
+ else if(k==="file"&&t.files&&t.files[0]){const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const m=Math.max(im.width,im.height),sc=Math.min(1,240/m),c=document.createElement("canvas");c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext("2d").drawImage(im,0,0,c.width,c.height);spD[i].img=c.toDataURL("image/jpeg",0.85);renderSpecial()};im.src=rd.result};rd.readAsDataURL(t.files[0])}});
+$("spList").addEventListener("input",e=>{const t=e.target;if(t.dataset.sp==="name"){spD[t.dataset.i]=spD[t.dataset.i]||{};spD[t.dataset.i].name=t.value}});
+$("spList").addEventListener("click",e=>{const t=e.target.closest("button[data-sp]");if(!t)return;const i=t.dataset.i;
+ if(t.dataset.sp==="img")t.parentNode.querySelector("input[type=file]").click();
+ else if(t.dataset.sp==="rmimg"){spD[i].img="";renderSpecial()}});
+function saveSpecial(){const m=$("spMsg"),out={};
+ for(const k in spD){const s=spD[k];if(s&&s.on){if(!(s.name||"").trim()){m.style.color="#c62828";m.textContent="⚠️ ناوی براند بنووسە ("+(rooms[k]?rooms[k].ck:"")+")";return}out[k]={on:true,name:s.name.trim(),img:s.img||""}}}
+ special=out;try{localStorage.setItem("ph_special",JSON.stringify(special))}catch(e){}
+ if(API_ON)push("special",special);m.style.color="#2e7d32";m.textContent="✅ پاشەکەوت کرا";if(spCur!=null&&!isSp(spCur))setSp(null)}
+const _raSp=renderAdmin;renderAdmin=function(){_raSp();const e=$("spSt");if(e)e.textContent=spCount()?String(spCount()):""};
+const _sa6=submitAdmin;submitAdmin=async function(){await _sa6();$("admSpecial").style.display="none"};
 
 loadCatalog();
 </script>

@@ -177,6 +177,7 @@ export async function onRequest({ request, env }) {
         products: rows.map((r) => ({ id: r.id, ...JSON.parse(r.data) })),
         secs: (await kvGet(db, "secs")) || { ovr: {}, custom: [] },
         hidden: (await kvGet(db, "hidden")) || [],
+        special: (await kvGet(db, "special")) || {},
         sched: (await kvGet(db, "sched")) || { show: true, auto: false, open: "08:00", close: "23:00" },
         now: Date.now(),
         ship: { t: num(ship.t), a: num(ship.a), b: num(ship.b), phone: str(ship.phone, 20).replace(/\D/g, "") },
@@ -215,27 +216,35 @@ export async function onRequest({ request, env }) {
       if (!ids.length) return J({ error: "invalid" }, 400);
       const rows = (await db.prepare("SELECT id, data FROM products WHERE id IN (" + ids.map(() => "?").join(",") + ")").bind(...ids).all()).results || [];
       const map = new Map(rows.map((r) => [r.id, JSON.parse(r.data)]));
-      const lines = [];
+      const lines = [], roomsIn = new Set();
       let sub = 0;
       for (const it of items) {
         const p = map.get(parseInt(it.id));
         const n = Math.max(1, Math.min(99, parseInt(it.n) || 1));
         if (!p) return J({ error: "invalid" }, 400);
+        roomsIn.add(p.room);
         const price = p.sale && p.sale < p.price ? p.sale : p.price;
         lines.push({ name: (p.names && p.names.ku) || p.name, n, price });
         sub += price * n;
+      }
+      const spMap = (await kvGet(db, "special")) || {};
+      const isSpR = (r) => !!(spMap[r] && spMap[r].on);
+      let brand = "";
+      if ([...roomsIn].some(isSpR)) {
+        if (roomsIn.size > 1) return J({ error: "mixed" }, 409);
+        brand = str(spMap[[...roomsIn][0]].name, 60) || "بەشێ تایبەت";
       }
       const ship = (await kvGet(db, "ship")) || {};
       const fee = sub >= num(ship.t) ? num(ship.b) : num(ship.a);
       const total = sub + fee;
       const ck = [...crypto.getRandomValues(new Uint8Array(8))].map((x) => x.toString(16).padStart(2, "0")).join("");
-      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note, loc };
+      const data = { name, phone, addr, items: lines, sub, fee, total, notified: 0, ck, note, loc, brand };
       const res = await db.prepare("INSERT INTO orders (created, status, ip, data) VALUES (?, 'new', ?, ?)").bind(new Date().toISOString(), ip, JSON.stringify(data)).run();
       const id = res.meta.last_row_id;
       const no = "#" + (1000 + id);
       const sep = "━━━━━━━━━━━━━━━━━";
       const text =
-        "🆕 داواکاری نوێ " + no + "\n\n▪️ " + name + "\n▪️ " + addr.replace(/\s*\n\s*/g, " ") + "\n▪️ " + phone + (loc ? "\n📍 شوێن: https://maps.google.com/?q=" + loc.lat + "," + loc.lng + (loc.acc ? " (±" + loc.acc + " م)" : "") : "") + "\n" + sep + "\n\n" +
+        "🆕 داواکاری نوێ " + no + (brand ? "\n📂 " + brand : "") + "\n\n▪️ " + name + "\n▪️ " + addr.replace(/\s*\n\s*/g, " ") + "\n▪️ " + phone + (loc ? "\n📍 شوێن: https://maps.google.com/?q=" + loc.lat + "," + loc.lng + (loc.acc ? " (±" + loc.acc + " م)" : "") : "") + "\n" + sep + "\n\n" +
         lines.map((l, i) => i + 1 + ") " + l.name + " × " + l.n + " — " + money(l.price * l.n)).join("\n\n") +
         "\n\n" + sep + "\n\nکۆی کاڵاکان: " + money(sub) + "\nنرخی گەیاندن: " + (fee ? money(fee) : "بەخۆڕایی") + "\nکۆی گشتی: " + money(total) +
         (note ? "\n\n▪️تێبینی\n" + note : "");
@@ -280,7 +289,7 @@ export async function onRequest({ request, env }) {
       }
       if (path === "/admin/kv" && m === "POST") {
         const b = await request.json().catch(() => ({}));
-        if (!["secs", "hidden", "ship", "sched"].includes(b.key)) return J({ error: "bad key" }, 400);
+        if (!["secs", "hidden", "ship", "sched", "special"].includes(b.key)) return J({ error: "bad key" }, 400);
         const v = JSON.stringify(b.value);
         if (v.length > 600000) return J({ error: "too big" }, 413);
         await kvSet(db, b.key, b.value);
